@@ -359,6 +359,13 @@ textarea {
   margin-bottom: 14px;
 }
 
+.routine-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
 .exercise-list {
   display: grid;
   gap: 10px;
@@ -390,6 +397,18 @@ textarea {
 .exercise-row span {
   text-transform: capitalize;
   font-weight: 800;
+}
+
+.mini-note {
+  margin-top: 4px;
+  color: var(--green-dark);
+  font-size: 0.82rem;
+  font-weight: 750;
+}
+
+.warmup-row {
+  margin-bottom: 10px;
+  border-color: rgba(10, 132, 255, 0.22);
 }
 
 .learn-link {
@@ -489,6 +508,88 @@ textarea {
   line-height: 1.45;
 }
 
+.player-visual {
+  min-height: 176px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfcfd;
+  overflow: hidden;
+}
+
+.player-visual .movement-svg {
+  width: min(100%, 280px);
+}
+
+.empty-mini {
+  color: var(--muted);
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 14px;
+}
+
+.set-logger {
+  display: grid;
+  gap: 10px;
+  border: 1px solid rgba(10, 132, 255, 0.18);
+  border-radius: 8px;
+  padding: 12px;
+  background: rgba(10, 132, 255, 0.07);
+}
+
+.log-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.compact-segments {
+  gap: 6px;
+}
+
+.compact-segments .segment {
+  flex: 1;
+  min-height: 34px;
+  padding: 0 8px;
+}
+
+.swap-list {
+  display: grid;
+  gap: 6px;
+}
+
+.swap-list span {
+  display: block;
+}
+
+.completion-summary {
+  display: grid;
+  gap: 10px;
+  border: 1px solid rgba(88, 86, 214, 0.18);
+  border-radius: 8px;
+  padding: 14px;
+  background: rgba(88, 86, 214, 0.08);
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.summary-grid span {
+  border-radius: 8px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.summary-grid strong {
+  color: var(--ink);
+}
+
 .next-card {
   display: grid;
   gap: 6px;
@@ -531,6 +632,41 @@ textarea {
 .library-card strong {
   font-size: 1.25rem;
   text-transform: capitalize;
+}
+
+.favorite-card {
+  border-color: rgba(88, 86, 214, 0.24);
+  background: linear-gradient(180deg, rgba(88, 86, 214, 0.10), rgba(255, 255, 255, 0.88));
+}
+
+.safety-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+  margin: 0;
+  background: rgba(255, 255, 255, 0.68);
+}
+
+.safety-options legend {
+  padding: 0 6px;
+  color: var(--muted);
+  font-size: 0.86rem;
+  font-weight: 850;
+}
+
+.safety-options label {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  color: var(--ink);
+  font-size: 0.9rem;
+}
+
+.safety-options input {
+  width: auto;
 }
 
 .learn-intro {
@@ -808,7 +944,9 @@ textarea {
   .form-grid,
   .metrics,
   .library-grid,
-  .learn-columns {
+  .learn-columns,
+  .summary-grid,
+  .safety-options {
     grid-template-columns: 1fr;
   }
 

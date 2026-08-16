@@ -40,6 +40,14 @@ const DURATIONS = [
   { id: 45, label: "45 min" }
 ];
 
+const CONSTRAINTS = [
+  { id: "knee", label: "Knee sensitive", terms: ["lunge", "squat", "step", "knee", "deep"] },
+  { id: "shoulder", label: "Shoulder sensitive", terms: ["shoulder", "press", "raise", "push", "overhead"] },
+  { id: "back", label: "Back sensitive", terms: ["deadlift", "hinge", "row", "loaded"] },
+  { id: "no-jumping", label: "No jumping", terms: ["jump", "plyo"] },
+  { id: "no-overhead", label: "No overhead pressing", terms: ["overhead", "shoulder press", "press"] }
+];
+
 const EXERCISES = [
   {
     id: "incline-pushup",
@@ -264,8 +272,8 @@ const EXERCISES = [
 ];
 
 const WARMUPS = [
-  { name: "Joint Prep", seconds: 40, phase: "Warmup", cue: "Circle shoulders, hips, knees, and ankles. Keep it easy." },
-  { name: "Bodyweight Pattern Rehearsal", seconds: 40, phase: "Warmup", cue: "Practice the main movement slowly before loading it." }
+  { id: "joint-prep", name: "Joint Prep", seconds: 40, phase: "Warmup", cue: "Circle shoulders, hips, knees, and ankles. Keep it easy." },
+  { id: "pattern-rehearsal", name: "Bodyweight Pattern Rehearsal", seconds: 40, phase: "Warmup", cue: "Practice the main movement slowly before loading it." }
 ];
 
 const COOLDOWNS = [
@@ -283,6 +291,8 @@ const state = {
   elapsed: 0,
   running: false,
   phase: "ready",
+  warmupIndex: 0,
+  selectedDifficulty: "right",
   timerId: null,
   libraryFilter: "all",
   learnScope: "plan",
@@ -301,8 +311,10 @@ function loadData() {
       equipment: "bodyweight",
       duration: 20,
       weeklyTarget: 3,
-      avoid: ""
+      avoid: "",
+      constraints: []
     },
+    favorites: [],
     history: []
   };
   try {
@@ -364,6 +376,9 @@ function initControls() {
   profileForm.elements.duration.innerHTML = optionHtml(DURATIONS, state.data.profile.duration);
   profileForm.elements.weeklyTarget.value = state.data.profile.weeklyTarget || 3;
   profileForm.elements.avoid.value = state.data.profile.avoid || "";
+  $$("#profileForm input[name='constraints']").forEach((input) => {
+    input.checked = (state.data.profile.constraints || []).includes(input.value);
+  });
 
   renderFocusControls();
 }
@@ -389,13 +404,45 @@ function scoreExercise(exercise, settings) {
   return score;
 }
 
+function constraintTerms() {
+  const selected = state.data.profile.constraints || [];
+  return CONSTRAINTS.filter((item) => selected.includes(item.id)).flatMap((item) => item.terms);
+}
+
+function exerciseText(exercise) {
+  return [exercise.id, exercise.name, exercise.kind, exercise.substitute, ...(exercise.focus || [])].join(" ").toLowerCase();
+}
+
+function violatesConstraint(exercise) {
+  const text = exerciseText(exercise);
+  return constraintTerms().some((term) => text.includes(term));
+}
+
+function swapOptions(exercise) {
+  const sameArea = EXERCISES.filter((item) => item.id !== exercise.id && item.areas.some((area) => exercise.areas.includes(area)));
+  const overlap = (item) => item.focus.filter((focus) => exercise.focus.includes(focus)).length;
+  const sorted = sameArea.sort((a, b) => overlap(b) - overlap(a));
+  const easier = sorted.find((item) => item.level.includes("beginner")) || sorted[0];
+  const harder = sorted.find((item) => item.level.includes("advanced")) || sorted.find((item) => item.level.includes("intermediate")) || sorted[0];
+  const noEquipment = sorted.find((item) => item.equipment.includes("bodyweight")) || easier;
+  const dumbbell = sorted.find((item) => item.equipment.includes("dumbbells")) || harder;
+  return {
+    easier: easier?.name || exercise.substitute,
+    harder: harder?.name || exercise.name,
+    noEquipment: noEquipment?.name || exercise.substitute,
+    dumbbell: dumbbell?.name || exercise.name
+  };
+}
+
 function pickExercises(settings, count) {
   const avoidTerms = String(state.data.profile.avoid || "").toLowerCase().split(/[,\n]/).map((term) => term.trim()).filter(Boolean);
-  const candidates = EXERCISES
+  const baseCandidates = EXERCISES
     .filter((exercise) => exercise.areas.includes(settings.area))
     .filter((exercise) => exercise.equipment.includes(settings.equipment) || exercise.equipment.includes("bodyweight"))
     .filter((exercise) => exercise.level.includes(settings.level) || settings.level !== "beginner")
-    .filter((exercise) => !avoidTerms.some((term) => exercise.name.toLowerCase().includes(term) || exercise.focus.includes(term)))
+    .filter((exercise) => !avoidTerms.some((term) => exercise.name.toLowerCase().includes(term) || exercise.focus.includes(term)));
+  const safetyFiltered = baseCandidates.filter((exercise) => !violatesConstraint(exercise));
+  const candidates = (safetyFiltered.length ? safetyFiltered : baseCandidates)
     .map((exercise) => ({ exercise, score: scoreExercise(exercise, settings) }))
     .sort((a, b) => b.score - a.score);
 
@@ -575,12 +622,32 @@ function prescriptionFor(exercise, settings) {
   return base;
 }
 
+function historyForExercise(exerciseId) {
+  return (state.data.history || [])
+    .flatMap((session) => session.setLogs || [])
+    .filter((log) => log.exerciseId === exerciseId);
+}
+
+function progressionFor(exercise) {
+  const recent = historyForExercise(exercise.id).slice(0, 4);
+  if (!recent.length) return "Start conservative and leave 2 reps in reserve.";
+  const hard = recent.filter((log) => log.difficulty === "hard").length;
+  const easy = recent.filter((log) => log.difficulty === "easy").length;
+  const avgReps = Math.round(recent.reduce((sum, log) => sum + Number(log.reps || 0), 0) / recent.length);
+  if (hard >= 2) return "Reduce load or use the easier swap next time.";
+  if (easy >= 2) return "Add 1-2 reps or a little weight next time.";
+  if (avgReps > 0) return `Repeat this range and aim to beat ${avgReps} reps with clean form.`;
+  return "Repeat the same setup and keep the effort controlled.";
+}
+
 function buildRoutine(settings) {
   const minutes = Number(settings.duration);
   const exerciseCount = minutes <= 10 ? 3 : minutes <= 20 ? 5 : minutes <= 30 ? 6 : 8;
   const exercises = pickExercises(settings, exerciseCount).map((exercise) => ({
     ...exercise,
-    prescription: prescriptionFor(exercise, settings)
+    prescription: prescriptionFor(exercise, settings),
+    swaps: swapOptions(exercise),
+    progression: progressionFor(exercise)
   }));
 
   const sets = exercises.flatMap((exercise) =>
@@ -592,7 +659,8 @@ function buildRoutine(settings) {
       reps: exercise.prescription.reps,
       restSeconds: exercise.prescription.restSeconds,
       cue: exercise.cues[index % exercise.cues.length],
-      substitute: exercise.substitute
+      substitute: exercise.substitute,
+      swaps: exercise.swaps
     }))
   );
 
@@ -602,8 +670,10 @@ function buildRoutine(settings) {
     title: `${labelFor(AREAS, settings.area)}${settings.focus ? `: ${settings.focus}` : ""}`,
     targetMinutes: minutes,
     settings,
+    warmups: WARMUPS,
     exercises,
-    sets
+    sets,
+    setLogs: []
   };
 }
 
@@ -622,14 +692,25 @@ function renderRoutine() {
         <p class="eyebrow">${escapeHtml(labelFor(GOALS, state.routine.settings.goal))}</p>
         <h3>${escapeHtml(state.routine.title)}</h3>
       </div>
-      <span class="pill">${escapeHtml(labelFor(EQUIPMENT, state.routine.settings.equipment))}</span>
+      <div class="routine-actions">
+        <span class="pill">${escapeHtml(labelFor(EQUIPMENT, state.routine.settings.equipment))}</span>
+        <button class="learn-link" data-save-favorite type="button">Save favorite</button>
+      </div>
     </div>
+    <article class="exercise-row warmup-row">
+      <div>
+        <h4>Warmup</h4>
+        <p>${state.routine.warmups.map((item) => `${escapeHtml(item.name)} ${formatTime(item.seconds)}`).join(" · ")}</p>
+      </div>
+      <span>Built in</span>
+    </article>
     <div class="exercise-list">
       ${state.routine.exercises.map((exercise) => `
         <article class="exercise-row">
           <div>
             <h4>${escapeHtml(exercise.name)}</h4>
             <p>${exercise.prescription.sets} sets · ${escapeHtml(exercise.prescription.reps)} · ${formatTime(exercise.prescription.restSeconds)} rest</p>
+            <p class="mini-note">${escapeHtml(exercise.progression)}</p>
           </div>
           <button class="learn-link" data-learn-exercise="${escapeHtml(exercise.id)}" type="button">Learn</button>
         </article>
@@ -642,9 +723,13 @@ function renderRoutine() {
   state.remaining = 0;
   state.elapsed = 0;
   state.running = false;
-  state.phase = "ready";
+  state.warmupIndex = 0;
+  state.phase = "readyWarmup";
+  state.selectedDifficulty = "right";
   clearInterval(state.timerId);
-  $("#startPause").textContent = "Start set";
+  $("#startPause").textContent = "Start warmup";
+  $("#completionSummary").hidden = true;
+  $("#completionSummary").innerHTML = "";
   renderPlayer();
   renderLearn();
 }
@@ -652,34 +737,57 @@ function renderRoutine() {
 function renderPlayer() {
   const routine = state.routine;
   if (!routine) return;
+  const warmup = routine.warmups?.[state.warmupIndex];
   const set = routine.sets[state.setIndex];
   const next = routine.sets[state.setIndex + 1];
-  const progress = Math.min(100, Math.max(0, (state.setIndex / routine.sets.length) * 100));
-  const phaseLabel = state.phase === "rest" ? "Rest" : state.phase === "complete" ? "Complete" : `Set ${set.setNumber} of ${set.totalSets}`;
+  const inWarmup = state.phase === "readyWarmup" || state.phase === "warmup";
+  const progressUnits = (routine.warmups?.length || 0) + routine.sets.length;
+  const doneUnits = inWarmup ? state.warmupIndex : (routine.warmups?.length || 0) + state.setIndex;
+  const progress = state.phase === "complete" ? 100 : Math.min(100, Math.max(0, (doneUnits / progressUnits) * 100));
+  const phaseLabel = inWarmup ? `Warmup ${state.warmupIndex + 1} of ${routine.warmups.length}` : state.phase === "rest" ? "Rest" : state.phase === "complete" ? "Complete" : `Set ${set.setNumber} of ${set.totalSets}`;
 
   $("#playerPhase").textContent = phaseLabel;
-  $("#currentExercise").textContent = state.phase === "rest" ? "Rest" : set.exercise.name;
-  $("#currentPrescription").textContent = state.phase === "rest"
+  $("#currentExercise").textContent = inWarmup ? warmup.name : state.phase === "rest" ? "Rest" : set.exercise.name;
+  $("#currentPrescription").textContent = inWarmup
+    ? `${formatTime(warmup.seconds)} · ${warmup.cue}`
+    : state.phase === "rest"
     ? `Next: ${next ? `${next.exercise.name} · set ${next.setNumber} of ${next.totalSets} · ${next.reps}` : "Finish workout"}`
     : `${set.reps} · then ${formatTime(set.restSeconds)} rest`;
-  $("#timeDisplay").textContent = state.phase === "rest" ? formatTime(state.remaining) : formatTime(state.elapsed);
-  $("#currentCue").textContent = state.phase === "rest" ? "Recover, breathe, and set up the next movement." : set.cue;
+  $("#timeDisplay").textContent = inWarmup || state.phase === "rest" ? formatTime(state.remaining || (inWarmup ? warmup.seconds : 0)) : formatTime(state.elapsed);
+  $("#currentCue").textContent = inWarmup ? warmup.cue : state.phase === "rest" ? "Recover, breathe, and set up the next movement." : set.cue;
   $("#workoutProgress").style.width = `${progress}%`;
   $("#nextExercise").innerHTML = next
     ? `<strong>${escapeHtml(next.exercise.name)}</strong><span>Set ${next.setNumber} of ${next.totalSets} · ${escapeHtml(next.reps)}</span>`
     : `<strong>Done</strong><span>Finish and save the session.</span>`;
-  $("#substitution").textContent = set.substitute || "Use a lighter variation and keep the movement pain-free.";
-  $("#startPause").disabled = state.phase === "rest" || state.phase === "complete";
-  $("#doneSet").disabled = state.phase !== "set";
-  $("#skipStep").textContent = state.phase === "rest" ? "Skip rest" : "Skip set";
+  $("#playerVisual").innerHTML = inWarmup ? `<div class="empty-mini">Warm up smoothly before the first set.</div>` : movementDiagram(set.exercise);
+  $("#substitution").innerHTML = inWarmup ? "Working sets will show easier, harder, no-equipment, and dumbbell swaps." : renderSwaps(set.exercise);
+  $("#setLogger").hidden = state.phase !== "set";
+  $("#startPause").disabled = state.phase === "rest" || state.phase === "set" || state.phase === "warmup" || state.phase === "complete";
+  $("#doneSet").disabled = !["set", "warmup"].includes(state.phase);
+  $("#doneSet").textContent = state.phase === "warmup" ? "Done warmup" : "Done";
+  $("#skipStep").textContent = state.phase === "rest" ? "Skip rest" : inWarmup ? "Skip warmup" : "Skip set";
+  $("#startPause").textContent = inWarmup ? "Start warmup" : "Start set";
+}
+
+function renderSwaps(exercise) {
+  const swaps = exercise.swaps || swapOptions(exercise);
+  return `
+    <div class="swap-list">
+      <span><strong>Easier:</strong> ${escapeHtml(swaps.easier)}</span>
+      <span><strong>Harder:</strong> ${escapeHtml(swaps.harder)}</span>
+      <span><strong>No equipment:</strong> ${escapeHtml(swaps.noEquipment)}</span>
+      <span><strong>Dumbbell:</strong> ${escapeHtml(swaps.dumbbell)}</span>
+    </div>
+  `;
 }
 
 function tick() {
   if (!state.running) return;
-  if (state.phase === "rest") {
+  if (state.phase === "rest" || state.phase === "warmup") {
     state.remaining -= 1;
     if (state.remaining <= 0) {
-      advanceSet();
+      if (state.phase === "warmup") advanceWarmup();
+      else advanceSet();
       return;
     }
   } else if (state.phase === "set") {
@@ -690,9 +798,20 @@ function tick() {
 
 function startSet() {
   if (!state.routine || state.phase === "rest" || state.phase === "complete") return;
+  if (state.phase === "readyWarmup") {
+    const warmup = state.routine.warmups[state.warmupIndex];
+    state.phase = "warmup";
+    state.running = true;
+    state.remaining = warmup.seconds;
+    clearInterval(state.timerId);
+    state.timerId = setInterval(tick, 1000);
+    renderPlayer();
+    return;
+  }
   state.phase = "set";
   state.running = true;
   state.elapsed = 0;
+  seedSetLogger();
   clearInterval(state.timerId);
   state.timerId = setInterval(tick, 1000);
   $("#startPause").textContent = "Set running";
@@ -700,7 +819,13 @@ function startSet() {
 }
 
 function doneSet() {
-  if (!state.routine || state.phase !== "set") return;
+  if (!state.routine) return;
+  if (state.phase === "warmup") {
+    advanceWarmup();
+    return;
+  }
+  if (state.phase !== "set") return;
+  logCurrentSet();
   if (state.setIndex >= state.routine.sets.length - 1) {
     completeWorkout();
     return;
@@ -715,8 +840,30 @@ function doneSet() {
   renderPlayer();
 }
 
+function advanceWarmup() {
+  if (!state.routine) return;
+  if (state.warmupIndex >= state.routine.warmups.length - 1) {
+    state.phase = "ready";
+    state.running = false;
+    state.remaining = 0;
+    clearInterval(state.timerId);
+    renderPlayer();
+    return;
+  }
+  state.warmupIndex += 1;
+  state.phase = "readyWarmup";
+  state.running = false;
+  state.remaining = 0;
+  clearInterval(state.timerId);
+  renderPlayer();
+}
+
 function advanceSet() {
   if (!state.routine) return;
+  if (state.phase === "readyWarmup" || state.phase === "warmup") {
+    advanceWarmup();
+    return;
+  }
   if (state.setIndex >= state.routine.sets.length - 1) {
     completeWorkout();
     return;
@@ -729,6 +876,39 @@ function advanceSet() {
   clearInterval(state.timerId);
   $("#startPause").textContent = "Start set";
   renderPlayer();
+}
+
+function seedSetLogger() {
+  const set = state.routine?.sets[state.setIndex];
+  if (!set) return;
+  const saved = state.routine.setLogs.find((log) => log.setId === set.id);
+  $("#actualReps").value = saved?.reps || suggestedRepNumber(set.reps);
+  $("#actualWeight").value = saved?.weight ?? "";
+  state.selectedDifficulty = saved?.difficulty || "right";
+  $$("#difficultyControls [data-difficulty]").forEach((button) => button.classList.toggle("active", button.dataset.difficulty === state.selectedDifficulty));
+}
+
+function suggestedRepNumber(reps) {
+  const match = String(reps).match(/\d+/g);
+  return match?.length ? match[match.length - 1] : "";
+}
+
+function logCurrentSet() {
+  const set = state.routine?.sets[state.setIndex];
+  if (!set) return;
+  const entry = {
+    setId: set.id,
+    exerciseId: set.exercise.id,
+    exerciseName: set.exercise.name,
+    setNumber: set.setNumber,
+    reps: Number($("#actualReps").value || 0),
+    weight: Number($("#actualWeight").value || 0),
+    difficulty: state.selectedDifficulty,
+    elapsedSeconds: state.elapsed,
+    loggedAt: new Date().toISOString()
+  };
+  state.routine.setLogs = state.routine.setLogs.filter((log) => log.setId !== set.id);
+  state.routine.setLogs.push(entry);
 }
 
 function completeWorkout() {
@@ -745,7 +925,10 @@ function completeWorkout() {
     goal: state.routine.settings.goal,
     duration: state.routine.targetMinutes,
     completedAt: new Date().toISOString(),
-    exercises: state.routine.exercises.map((exercise) => exercise.name)
+    exercises: state.routine.exercises.map((exercise) => exercise.name),
+    setLogs: [...state.routine.setLogs],
+    totalSets: state.routine.setLogs.length || state.routine.sets.length,
+    nextRecommendation: nextSessionRecommendation(state.routine)
   };
   state.data.history = [completed, ...state.data.history].slice(0, 50);
   saveData();
@@ -753,16 +936,48 @@ function completeWorkout() {
   renderBalance();
   $("#currentExercise").textContent = "Workout saved";
   $("#currentPrescription").textContent = `${state.routine.sets.length} sets completed`;
-  $("#currentCue").textContent = "Nice. Your history and balance check are updated.";
+  $("#currentCue").textContent = completed.nextRecommendation;
   $("#timeDisplay").textContent = "Done";
   $("#workoutProgress").style.width = "100%";
+  renderCompletionSummary(completed);
   $("#startPause").disabled = true;
   $("#doneSet").disabled = true;
 }
 
+function nextSessionRecommendation(routine) {
+  const logs = routine.setLogs || [];
+  if (!logs.length) return "Next time, log reps and difficulty so the coach can progress you.";
+  const hard = logs.filter((log) => log.difficulty === "hard").length;
+  const easy = logs.filter((log) => log.difficulty === "easy").length;
+  if (hard > logs.length / 3) return "Next time, reduce load or choose easier swaps for the hardest movements.";
+  if (easy > logs.length / 2) return "Next time, add 1-2 reps, add a little weight, or add one set to the first movement.";
+  return "Next time, repeat this routine and try to improve one set while keeping form clean.";
+}
+
+function renderCompletionSummary(session) {
+  const focusAreas = [...new Set(state.routine.exercises.flatMap((exercise) => exercise.focus).slice(0, 8))];
+  $("#completionSummary").hidden = false;
+  $("#completionSummary").innerHTML = `
+    <h3>Session Summary</h3>
+    <div class="summary-grid">
+      <span><strong>${session.totalSets}</strong> sets logged</span>
+      <span><strong>${state.routine.exercises.length}</strong> exercises</span>
+      <span><strong>${focusAreas.map(escapeHtml).join(", ")}</strong></span>
+    </div>
+    <p>${escapeHtml(session.nextRecommendation)}</p>
+  `;
+}
+
 function renderLibrary() {
   const groups = AREAS.filter((area) => state.libraryFilter === "all" || area.id === state.libraryFilter);
-  $("#libraryGrid").innerHTML = groups.map((area) => {
+  const favoriteCards = (state.data.favorites || []).map((favorite) => `
+    <button class="library-card favorite-card" data-load-favorite="${escapeHtml(favorite.id)}" type="button">
+      <span>Favorite routine</span>
+      <strong>${escapeHtml(favorite.title)}</strong>
+      <em>${escapeHtml(labelFor(GOALS, favorite.settings.goal))} · ${favorite.exerciseNames.length} exercises</em>
+    </button>
+  `).join("");
+  const libraryCards = groups.map((area) => {
     const focusList = FOCUSES[area.id].map((focus) => {
       const count = EXERCISES.filter((exercise) => exercise.areas.includes(area.id) && exercise.focus.includes(focus)).length;
       return `<button class="library-card" data-library-area="${area.id}" data-library-focus="${focus}" type="button">
@@ -773,6 +988,7 @@ function renderLibrary() {
     }).join("");
     return focusList;
   }).join("");
+  $("#libraryGrid").innerHTML = favoriteCards + libraryCards;
 }
 
 function learningExerciseList() {
@@ -821,7 +1037,7 @@ function renderLearn() {
               <ul>${points.mistakes.map((mistake) => `<li>${escapeHtml(mistake)}.</li>`).join("")}</ul>
             </div>
           </div>
-          <div class="sub-card compact-sub"><strong>Substitute:</strong> ${escapeHtml(exercise.substitute)}</div>
+          <div class="sub-card compact-sub">${renderSwaps(exercise)}</div>
         </div>
       </article>
     `;
@@ -835,7 +1051,8 @@ function renderHistory() {
       <article class="history-item">
         <div>
           <h3>${escapeHtml(item.title)}</h3>
-          <p>${new Date(item.completedAt).toLocaleString()} · ${escapeHtml(labelFor(GOALS, item.goal))} · ${item.duration} min</p>
+          <p>${new Date(item.completedAt).toLocaleString()} · ${escapeHtml(labelFor(GOALS, item.goal))} · ${item.duration} min · ${item.totalSets || item.exercises.length} sets</p>
+          ${item.nextRecommendation ? `<p class="mini-note">${escapeHtml(item.nextRecommendation)}</p>` : ""}
         </div>
         <span>${escapeHtml(labelFor(AREAS, item.area))}</span>
       </article>
@@ -928,6 +1145,24 @@ document.addEventListener("click", (event) => {
     document.getElementById(`learn-${learnExercise.dataset.learnExercise}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
+  const saveFavorite = event.target.closest("[data-save-favorite]");
+  if (saveFavorite && state.routine) {
+    saveCurrentFavorite();
+    renderLibrary();
+    renderRoutine();
+  }
+
+  const loadFavorite = event.target.closest("[data-load-favorite]");
+  if (loadFavorite) {
+    loadFavoriteRoutine(loadFavorite.dataset.loadFavorite);
+  }
+
+  const difficulty = event.target.closest("[data-difficulty]");
+  if (difficulty) {
+    state.selectedDifficulty = difficulty.dataset.difficulty;
+    $$("#difficultyControls [data-difficulty]").forEach((button) => button.classList.toggle("active", button === difficulty));
+  }
+
   const filter = event.target.closest("[data-library-filter]");
   if (filter) {
     state.libraryFilter = filter.dataset.libraryFilter;
@@ -935,6 +1170,52 @@ document.addEventListener("click", (event) => {
     renderLibrary();
   }
 });
+
+function saveCurrentFavorite() {
+  const favorite = {
+    id: crypto.randomUUID(),
+    title: state.routine.title,
+    settings: state.routine.settings,
+    exerciseIds: state.routine.exercises.map((exercise) => exercise.id),
+    exerciseNames: state.routine.exercises.map((exercise) => exercise.name),
+    savedAt: new Date().toISOString()
+  };
+  state.data.favorites = [favorite, ...(state.data.favorites || []).filter((item) => item.title !== favorite.title)].slice(0, 8);
+  saveData();
+}
+
+function loadFavoriteRoutine(id) {
+  const favorite = (state.data.favorites || []).find((item) => item.id === id);
+  if (!favorite) return;
+  state.area = favorite.settings.area;
+  state.focus = favorite.settings.focus || "";
+  state.routine = buildRoutine(favorite.settings);
+  const ordered = favorite.exerciseIds.map((exerciseId) => state.routine.exercises.find((exercise) => exercise.id === exerciseId) || EXERCISES.find((exercise) => exercise.id === exerciseId)).filter(Boolean);
+  if (ordered.length) {
+    state.routine.exercises = ordered.map((exercise) => ({
+      ...exercise,
+      prescription: exercise.prescription || prescriptionFor(exercise, favorite.settings),
+      swaps: exercise.swaps || swapOptions(exercise),
+      progression: progressionFor(exercise)
+    }));
+    state.routine.sets = state.routine.exercises.flatMap((exercise) =>
+      Array.from({ length: exercise.prescription.sets }).map((_, index) => ({
+        id: `${exercise.id}-set-${index + 1}`,
+        exercise,
+        setNumber: index + 1,
+        totalSets: exercise.prescription.sets,
+        reps: exercise.prescription.reps,
+        restSeconds: exercise.prescription.restSeconds,
+        cue: exercise.cues[index % exercise.cues.length],
+        substitute: exercise.substitute,
+        swaps: exercise.swaps
+      }))
+    );
+  }
+  switchView("today");
+  initControls();
+  renderRoutine();
+}
 
 $("#generateWorkout").addEventListener("click", () => {
   state.routine = buildRoutine(currentSettings());
@@ -970,6 +1251,7 @@ $("#profileForm").addEventListener("submit", (event) => {
     equipment: form.get("equipment"),
     duration: Number(form.get("duration")),
     weeklyTarget: Number(form.get("weeklyTarget")),
+    constraints: form.getAll("constraints"),
     avoid: form.get("avoid") || ""
   };
   saveData();

@@ -101,12 +101,27 @@
                 <button class="ghost-button" id="skipStep" type="button">Skip</button>
                 <button class="ghost-button" id="finishWorkout" type="button">Finish</button>
               </div>
+              <div id="completionSummary" class="completion-summary" hidden></div>
             </div>
             <aside class="player-side">
+              <h3>Movement Preview</h3>
+              <div id="playerVisual" class="player-visual">Generate a workout first.</div>
+              <div id="setLogger" class="set-logger" hidden>
+                <h3>Log Set</h3>
+                <div class="log-grid">
+                  <label class="field"><span>Reps</span><input id="actualReps" type="number" min="0" inputmode="numeric" /></label>
+                  <label class="field"><span>Weight</span><input id="actualWeight" type="number" min="0" inputmode="decimal" placeholder="0" /></label>
+                </div>
+                <div class="segmented compact-segments" id="difficultyControls">
+                  <button class="segment active" data-difficulty="right" type="button">Right</button>
+                  <button class="segment" data-difficulty="easy" type="button">Easy</button>
+                  <button class="segment" data-difficulty="hard" type="button">Hard</button>
+                </div>
+              </div>
               <h3>Next Up</h3>
               <div id="nextExercise" class="next-card">Generate a workout first.</div>
-              <h3>Substitute</h3>
-              <div id="substitution" class="sub-card">Substitutions appear during the workout.</div>
+              <h3>Swaps</h3>
+              <div id="substitution" class="sub-card">Swaps appear during the workout.</div>
             </aside>
           </section>
         </section>
@@ -148,6 +163,14 @@
                 <label class="field"><span>Default equipment</span><select name="equipment"></select></label>
                 <label class="field"><span>Preferred time</span><select name="duration"></select></label>
                 <label class="field"><span>Weekly target</span><input name="weeklyTarget" type="number" min="1" max="7" value="3" /></label>
+                <fieldset class="safety-options">
+                  <legend>Safety constraints</legend>
+                  <label><input type="checkbox" name="constraints" value="knee" /> Knee sensitive</label>
+                  <label><input type="checkbox" name="constraints" value="shoulder" /> Shoulder sensitive</label>
+                  <label><input type="checkbox" name="constraints" value="back" /> Back sensitive</label>
+                  <label><input type="checkbox" name="constraints" value="no-jumping" /> No jumping</label>
+                  <label><input type="checkbox" name="constraints" value="no-overhead" /> No overhead pressing</label>
+                </fieldset>
                 <label class="field"><span>Avoid or modify</span><textarea name="avoid" rows="4" placeholder="Example: overhead pressing, jumping, deep knee bend"></textarea></label>
                 <button class="primary-button" type="submit">Save profile</button>
               </form>
