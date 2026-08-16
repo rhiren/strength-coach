@@ -424,66 +424,68 @@ function diagramKind(exercise) {
 
 function movementDiagram(exercise) {
   const kind = diagramKind(exercise);
+  const markerId = `arrow-${exercise.id}`;
   const common = `
-    <defs>
-      <marker id="arrow-${exercise.id}" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto">
-        <path d="M0,0 L0,6 L6,3 z" fill="#0a84ff"></path>
-      </marker>
-    </defs>
-    <rect x="8" y="8" width="304" height="184" rx="10" fill="#f4f7f8"></rect>
+    <rect x="8" y="8" width="304" height="184" rx="10" fill="#f4f7f8" stroke="none"></rect>
     <line x1="34" y1="160" x2="286" y2="160" stroke="#cfd9df" stroke-width="4" stroke-linecap="round"></line>
   `;
+  const arrow = (path) => `<path class="motion-arrow" d="${path}" marker-end="url(#${markerId})"></path>`;
   const diagrams = {
     squat: `
       ${common}
       <circle cx="92" cy="62" r="14"></circle><line x1="92" y1="77" x2="92" y2="118"></line><line x1="92" y1="92" x2="65" y2="108"></line><line x1="92" y1="92" x2="119" y2="108"></line><line x1="92" y1="118" x2="72" y2="158"></line><line x1="92" y1="118" x2="116" y2="158"></line>
       <circle cx="218" cy="82" r="14"></circle><line x1="218" y1="97" x2="206" y2="128"></line><line x1="210" y1="111" x2="184" y2="124"></line><line x1="210" y1="111" x2="237" y2="122"></line><line x1="206" y1="128" x2="176" y2="158"></line><line x1="206" y1="128" x2="238" y2="158"></line>
-      <path d="M132 70 C160 58 182 60 198 74" stroke="#0a84ff" marker-end="url(#arrow-${exercise.id})"></path>
+      ${arrow("M132 70 C160 58 182 60 198 74")}
     `,
     split: `
       ${common}
       <circle cx="94" cy="62" r="14"></circle><line x1="94" y1="77" x2="94" y2="120"></line><line x1="94" y1="94" x2="70" y2="112"></line><line x1="94" y1="94" x2="118" y2="112"></line><line x1="94" y1="120" x2="72" y2="158"></line><line x1="94" y1="120" x2="118" y2="158"></line>
       <circle cx="220" cy="78" r="14"></circle><line x1="220" y1="93" x2="215" y2="128"></line><line x1="217" y1="108" x2="190" y2="120"></line><line x1="217" y1="108" x2="244" y2="120"></line><line x1="215" y1="128" x2="178" y2="158"></line><line x1="215" y1="128" x2="254" y2="158"></line>
-      <path d="M135 116 C160 132 180 132 202 116" stroke="#0a84ff" marker-end="url(#arrow-${exercise.id})"></path>
+      ${arrow("M135 116 C160 132 180 132 202 116")}
     `,
     hinge: `
       ${common}
       <circle cx="94" cy="60" r="14"></circle><line x1="94" y1="75" x2="96" y2="120"></line><line x1="96" y1="92" x2="72" y2="110"></line><line x1="96" y1="92" x2="120" y2="110"></line><line x1="96" y1="120" x2="76" y2="158"></line><line x1="96" y1="120" x2="118" y2="158"></line>
       <circle cx="218" cy="78" r="14"></circle><line x1="207" y1="91" x2="172" y2="121"></line><line x1="186" y1="110" x2="158" y2="130"></line><line x1="186" y1="110" x2="216" y2="128"></line><line x1="172" y1="121" x2="164" y2="158"></line><line x1="172" y1="121" x2="226" y2="158"></line>
-      <path d="M130 82 C155 70 178 70 198 84" stroke="#0a84ff" marker-end="url(#arrow-${exercise.id})"></path>
+      ${arrow("M130 82 C155 70 178 70 198 84")}
     `,
     push: `
       ${common}
       <circle cx="86" cy="106" r="12"></circle><line x1="98" y1="110" x2="152" y2="132"></line><line x1="120" y1="119" x2="104" y2="158"></line><line x1="120" y1="119" x2="134" y2="158"></line><line x1="152" y1="132" x2="198" y2="154"></line><line x1="152" y1="132" x2="112" y2="154"></line>
       <circle cx="214" cy="124" r="12"></circle><line x1="226" y1="128" x2="266" y2="146"></line><line x1="242" y1="136" x2="226" y2="158"></line><line x1="242" y1="136" x2="262" y2="158"></line><line x1="266" y1="146" x2="286" y2="158"></line><line x1="266" y1="146" x2="232" y2="158"></line>
-      <path d="M178 102 C194 91 210 93 226 106" stroke="#0a84ff" marker-end="url(#arrow-${exercise.id})"></path>
+      ${arrow("M178 102 C194 91 210 93 226 106")}
     `,
     pull: `
       ${common}
       <circle cx="88" cy="70" r="14"></circle><line x1="96" y1="82" x2="132" y2="120"></line><line x1="114" y1="101" x2="84" y2="124"></line><line x1="114" y1="101" x2="146" y2="120"></line><line x1="132" y1="120" x2="110" y2="158"></line><line x1="132" y1="120" x2="162" y2="158"></line>
       <circle cx="214" cy="70" r="14"></circle><line x1="222" y1="82" x2="250" y2="120"></line><line x1="236" y1="101" x2="214" y2="124"></line><line x1="236" y1="101" x2="264" y2="114"></line><line x1="250" y1="120" x2="226" y2="158"></line><line x1="250" y1="120" x2="278" y2="158"></line>
-      <path d="M156 118 C176 108 194 108 212 118" stroke="#0a84ff" marker-end="url(#arrow-${exercise.id})"></path>
+      ${arrow("M156 118 C176 108 194 108 212 118")}
     `,
     arms: `
       ${common}
       <circle cx="94" cy="60" r="14"></circle><line x1="94" y1="75" x2="94" y2="120"></line><line x1="94" y1="90" x2="66" y2="122"></line><line x1="94" y1="90" x2="122" y2="122"></line><line x1="94" y1="120" x2="74" y2="158"></line><line x1="94" y1="120" x2="116" y2="158"></line>
       <circle cx="220" cy="60" r="14"></circle><line x1="220" y1="75" x2="220" y2="120"></line><line x1="220" y1="90" x2="188" y2="82"></line><line x1="220" y1="90" x2="252" y2="82"></line><line x1="220" y1="120" x2="200" y2="158"></line><line x1="220" y1="120" x2="242" y2="158"></line>
-      <path d="M138 94 C162 80 182 80 204 94" stroke="#0a84ff" marker-end="url(#arrow-${exercise.id})"></path>
+      ${arrow("M138 94 C162 80 182 80 204 94")}
     `,
     core: `
       ${common}
       <circle cx="84" cy="126" r="12"></circle><line x1="96" y1="128" x2="158" y2="146"></line><line x1="118" y1="135" x2="92" y2="158"></line><line x1="118" y1="135" x2="134" y2="158"></line><line x1="158" y1="146" x2="204" y2="158"></line><line x1="158" y1="146" x2="122" y2="158"></line>
-      <path d="M80 92 C118 78 158 78 198 92" stroke="#0a84ff" marker-end="url(#arrow-${exercise.id})"></path>
+      ${arrow("M80 92 C118 78 158 78 198 92")}
       <circle cx="224" cy="104" r="12"></circle><line x1="236" y1="108" x2="266" y2="138"></line><line x1="250" y1="122" x2="226" y2="146"></line><line x1="250" y1="122" x2="278" y2="146"></line>
     `,
     standing: `
       ${common}
       <circle cx="158" cy="60" r="14"></circle><line x1="158" y1="75" x2="158" y2="120"></line><line x1="158" y1="92" x2="128" y2="112"></line><line x1="158" y1="92" x2="188" y2="112"></line><line x1="158" y1="120" x2="136" y2="158"></line><line x1="158" y1="120" x2="180" y2="158"></line>
-      <path d="M104 90 C136 70 178 70 212 90" stroke="#0a84ff" marker-end="url(#arrow-${exercise.id})"></path>
+      ${arrow("M104 90 C136 70 178 70 212 90")}
     `
   };
 
   return `<svg class="movement-svg" viewBox="0 0 320 200" role="img" aria-label="${escapeHtml(exercise.name)} movement diagram">
+    <defs>
+      <marker id="${markerId}" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto" markerUnits="userSpaceOnUse">
+        <path d="M0,0 L0,7 L7,3.5 z" fill="#0a84ff" stroke="none"></path>
+      </marker>
+    </defs>
     <g fill="none" stroke="#18202a" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
       ${diagrams[kind] || diagrams.standing}
     </g>
