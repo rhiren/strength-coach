@@ -575,11 +575,76 @@ textarea {
   height: auto;
 }
 
-.movement-svg .motion-arrow {
+.movement-svg .diagram-pose {
+  fill: none;
+  stroke: #111827;
+  stroke-width: 7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.movement-svg .diagram-start {
+  opacity: 0.34;
+}
+
+.movement-svg .diagram-finish {
+  opacity: 0.98;
+}
+
+.movement-svg .diagram-weight {
+  fill: #111827;
+  stroke: none;
+}
+
+.movement-svg .motion-track {
   fill: none;
   stroke: #0a84ff;
-  stroke-width: 5;
+  stroke-width: 4;
   stroke-linecap: round;
+  stroke-dasharray: 7 8;
+  opacity: 0.78;
+}
+
+.movement-svg .motion-dot {
+  fill: #0a84ff;
+}
+
+.movement-svg .motion-pulse circle {
+  fill: rgba(10, 132, 255, 0.12);
+  stroke: rgba(10, 132, 255, 0.28);
+  stroke-width: 2;
+  animation: diagramPulse 2.4s ease-in-out infinite;
+}
+
+.movement-svg .diagram-label {
+  fill: #6b7280;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.movement-svg .diagram-cue {
+  fill: #4b5563;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+@keyframes diagramPulse {
+  0%,
+  72% {
+    opacity: 0.95;
+    transform: scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.6);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .movement-svg .motion-pulse circle {
+    animation: none;
+  }
 }
 
 .learn-body {

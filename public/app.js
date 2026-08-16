@@ -424,70 +424,92 @@ function diagramKind(exercise) {
 
 function movementDiagram(exercise) {
   const kind = diagramKind(exercise);
-  const markerId = `arrow-${exercise.id}`;
-  const common = `
-    <rect x="8" y="8" width="304" height="184" rx="10" fill="#f4f7f8" stroke="none"></rect>
-    <line x1="34" y1="160" x2="286" y2="160" stroke="#cfd9df" stroke-width="4" stroke-linecap="round"></line>
+  const pose = ({ head, torso, leftArm, rightArm, leftLeg, rightLeg, weight }) => `
+    <circle cx="${head[0]}" cy="${head[1]}" r="12"></circle>
+    <line x1="${torso[0]}" y1="${torso[1]}" x2="${torso[2]}" y2="${torso[3]}"></line>
+    <line x1="${leftArm[0]}" y1="${leftArm[1]}" x2="${leftArm[2]}" y2="${leftArm[3]}"></line>
+    <line x1="${rightArm[0]}" y1="${rightArm[1]}" x2="${rightArm[2]}" y2="${rightArm[3]}"></line>
+    <line x1="${leftLeg[0]}" y1="${leftLeg[1]}" x2="${leftLeg[2]}" y2="${leftLeg[3]}"></line>
+    <line x1="${rightLeg[0]}" y1="${rightLeg[1]}" x2="${rightLeg[2]}" y2="${rightLeg[3]}"></line>
+    ${weight ? `<rect class="diagram-weight" x="${weight[0]}" y="${weight[1]}" width="${weight[2]}" height="${weight[3]}" rx="4"></rect>` : ""}
   `;
-  const arrow = (path) => `<path class="motion-arrow" d="${path}" marker-end="url(#${markerId})"></path>`;
-  const diagrams = {
-    squat: `
-      ${common}
-      <circle cx="92" cy="62" r="14"></circle><line x1="92" y1="77" x2="92" y2="118"></line><line x1="92" y1="92" x2="65" y2="108"></line><line x1="92" y1="92" x2="119" y2="108"></line><line x1="92" y1="118" x2="72" y2="158"></line><line x1="92" y1="118" x2="116" y2="158"></line>
-      <circle cx="218" cy="82" r="14"></circle><line x1="218" y1="97" x2="206" y2="128"></line><line x1="210" y1="111" x2="184" y2="124"></line><line x1="210" y1="111" x2="237" y2="122"></line><line x1="206" y1="128" x2="176" y2="158"></line><line x1="206" y1="128" x2="238" y2="158"></line>
-      ${arrow("M132 70 C160 58 182 60 198 74")}
-    `,
-    split: `
-      ${common}
-      <circle cx="94" cy="62" r="14"></circle><line x1="94" y1="77" x2="94" y2="120"></line><line x1="94" y1="94" x2="70" y2="112"></line><line x1="94" y1="94" x2="118" y2="112"></line><line x1="94" y1="120" x2="72" y2="158"></line><line x1="94" y1="120" x2="118" y2="158"></line>
-      <circle cx="220" cy="78" r="14"></circle><line x1="220" y1="93" x2="215" y2="128"></line><line x1="217" y1="108" x2="190" y2="120"></line><line x1="217" y1="108" x2="244" y2="120"></line><line x1="215" y1="128" x2="178" y2="158"></line><line x1="215" y1="128" x2="254" y2="158"></line>
-      ${arrow("M135 116 C160 132 180 132 202 116")}
-    `,
-    hinge: `
-      ${common}
-      <circle cx="94" cy="60" r="14"></circle><line x1="94" y1="75" x2="96" y2="120"></line><line x1="96" y1="92" x2="72" y2="110"></line><line x1="96" y1="92" x2="120" y2="110"></line><line x1="96" y1="120" x2="76" y2="158"></line><line x1="96" y1="120" x2="118" y2="158"></line>
-      <circle cx="218" cy="78" r="14"></circle><line x1="207" y1="91" x2="172" y2="121"></line><line x1="186" y1="110" x2="158" y2="130"></line><line x1="186" y1="110" x2="216" y2="128"></line><line x1="172" y1="121" x2="164" y2="158"></line><line x1="172" y1="121" x2="226" y2="158"></line>
-      ${arrow("M130 82 C155 70 178 70 198 84")}
-    `,
-    push: `
-      ${common}
-      <circle cx="86" cy="106" r="12"></circle><line x1="98" y1="110" x2="152" y2="132"></line><line x1="120" y1="119" x2="104" y2="158"></line><line x1="120" y1="119" x2="134" y2="158"></line><line x1="152" y1="132" x2="198" y2="154"></line><line x1="152" y1="132" x2="112" y2="154"></line>
-      <circle cx="214" cy="124" r="12"></circle><line x1="226" y1="128" x2="266" y2="146"></line><line x1="242" y1="136" x2="226" y2="158"></line><line x1="242" y1="136" x2="262" y2="158"></line><line x1="266" y1="146" x2="286" y2="158"></line><line x1="266" y1="146" x2="232" y2="158"></line>
-      ${arrow("M178 102 C194 91 210 93 226 106")}
-    `,
-    pull: `
-      ${common}
-      <circle cx="88" cy="70" r="14"></circle><line x1="96" y1="82" x2="132" y2="120"></line><line x1="114" y1="101" x2="84" y2="124"></line><line x1="114" y1="101" x2="146" y2="120"></line><line x1="132" y1="120" x2="110" y2="158"></line><line x1="132" y1="120" x2="162" y2="158"></line>
-      <circle cx="214" cy="70" r="14"></circle><line x1="222" y1="82" x2="250" y2="120"></line><line x1="236" y1="101" x2="214" y2="124"></line><line x1="236" y1="101" x2="264" y2="114"></line><line x1="250" y1="120" x2="226" y2="158"></line><line x1="250" y1="120" x2="278" y2="158"></line>
-      ${arrow("M156 118 C176 108 194 108 212 118")}
-    `,
-    arms: `
-      ${common}
-      <circle cx="94" cy="60" r="14"></circle><line x1="94" y1="75" x2="94" y2="120"></line><line x1="94" y1="90" x2="66" y2="122"></line><line x1="94" y1="90" x2="122" y2="122"></line><line x1="94" y1="120" x2="74" y2="158"></line><line x1="94" y1="120" x2="116" y2="158"></line>
-      <circle cx="220" cy="60" r="14"></circle><line x1="220" y1="75" x2="220" y2="120"></line><line x1="220" y1="90" x2="188" y2="82"></line><line x1="220" y1="90" x2="252" y2="82"></line><line x1="220" y1="120" x2="200" y2="158"></line><line x1="220" y1="120" x2="242" y2="158"></line>
-      ${arrow("M138 94 C162 80 182 80 204 94")}
-    `,
-    core: `
-      ${common}
-      <circle cx="84" cy="126" r="12"></circle><line x1="96" y1="128" x2="158" y2="146"></line><line x1="118" y1="135" x2="92" y2="158"></line><line x1="118" y1="135" x2="134" y2="158"></line><line x1="158" y1="146" x2="204" y2="158"></line><line x1="158" y1="146" x2="122" y2="158"></line>
-      ${arrow("M80 92 C118 78 158 78 198 92")}
-      <circle cx="224" cy="104" r="12"></circle><line x1="236" y1="108" x2="266" y2="138"></line><line x1="250" y1="122" x2="226" y2="146"></line><line x1="250" y1="122" x2="278" y2="146"></line>
-    `,
-    standing: `
-      ${common}
-      <circle cx="158" cy="60" r="14"></circle><line x1="158" y1="75" x2="158" y2="120"></line><line x1="158" y1="92" x2="128" y2="112"></line><line x1="158" y1="92" x2="188" y2="112"></line><line x1="158" y1="120" x2="136" y2="158"></line><line x1="158" y1="120" x2="180" y2="158"></line>
-      ${arrow("M104 90 C136 70 178 70 212 90")}
-    `
-  };
+  const guide = {
+    squat: {
+      label: "Sit down, then drive up",
+      path: "M101 64 C134 94 182 94 217 75",
+      start: pose({ head: [92, 60], torso: [92, 75, 92, 116], leftArm: [92, 90, 66, 108], rightArm: [92, 90, 118, 108], leftLeg: [92, 116, 72, 158], rightLeg: [92, 116, 116, 158], weight: [80, 88, 24, 16] }),
+      finish: pose({ head: [222, 82], torso: [222, 97, 210, 130], leftArm: [216, 111, 188, 124], rightArm: [216, 111, 242, 123], leftLeg: [210, 130, 178, 158], rightLeg: [210, 130, 240, 158], weight: [207, 108, 24, 16] })
+    },
+    split: {
+      label: "Lower straight down, then stand",
+      path: "M102 72 C135 108 176 110 214 84",
+      start: pose({ head: [92, 62], torso: [92, 77, 92, 118], leftArm: [92, 94, 70, 112], rightArm: [92, 94, 116, 112], leftLeg: [92, 118, 70, 158], rightLeg: [92, 118, 122, 158] }),
+      finish: pose({ head: [222, 82], torso: [222, 97, 216, 130], leftArm: [218, 112, 190, 122], rightArm: [218, 112, 244, 122], leftLeg: [216, 130, 178, 158], rightLeg: [216, 130, 254, 158] })
+    },
+    hinge: {
+      label: "Push hips back, spine stays long",
+      path: "M104 68 C138 96 174 103 214 86",
+      start: pose({ head: [92, 58], torso: [92, 73, 96, 118], leftArm: [95, 92, 72, 112], rightArm: [95, 92, 120, 112], leftLeg: [96, 118, 76, 158], rightLeg: [96, 118, 118, 158], weight: [77, 110, 18, 18] }),
+      finish: pose({ head: [224, 76], torso: [214, 88, 174, 122], leftArm: [196, 106, 166, 132], rightArm: [196, 106, 226, 128], leftLeg: [174, 122, 164, 158], rightLeg: [174, 122, 228, 158], weight: [154, 128, 18, 18] })
+    },
+    push: {
+      label: "Body moves as one line",
+      path: "M95 118 C134 92 188 94 230 118",
+      start: pose({ head: [86, 112], torso: [98, 116, 154, 138], leftArm: [124, 126, 104, 158], rightArm: [124, 126, 142, 158], leftLeg: [154, 138, 198, 158], rightLeg: [154, 138, 116, 158] }),
+      finish: pose({ head: [220, 126], torso: [232, 130, 270, 148], leftArm: [248, 138, 228, 158], rightArm: [248, 138, 266, 158], leftLeg: [270, 148, 290, 158], rightLeg: [270, 148, 236, 158] })
+    },
+    pull: {
+      label: "Pull elbow toward ribs",
+      path: "M116 108 C145 126 184 126 218 108",
+      start: pose({ head: [88, 70], torso: [98, 82, 134, 120], leftArm: [116, 102, 86, 126], rightArm: [116, 102, 148, 122], leftLeg: [134, 120, 110, 158], rightLeg: [134, 120, 164, 158], weight: [144, 120, 18, 18] }),
+      finish: pose({ head: [222, 70], torso: [232, 82, 258, 120], leftArm: [244, 102, 220, 124], rightArm: [244, 102, 266, 112], leftLeg: [258, 120, 232, 158], rightLeg: [258, 120, 282, 158], weight: [260, 108, 18, 18] })
+    },
+    arms: {
+      label: "Control up and down",
+      path: "M110 104 C144 78 184 78 218 104",
+      start: pose({ head: [94, 58], torso: [94, 73, 94, 120], leftArm: [94, 92, 68, 124], rightArm: [94, 92, 120, 124], leftLeg: [94, 120, 74, 158], rightLeg: [94, 120, 116, 158], weight: [61, 123, 16, 16] }),
+      finish: pose({ head: [220, 58], torso: [220, 73, 220, 120], leftArm: [220, 92, 190, 84], rightArm: [220, 92, 250, 84], leftLeg: [220, 120, 200, 158], rightLeg: [220, 120, 242, 158], weight: [182, 76, 16, 16] })
+    },
+    core: {
+      label: "Brace first, move slowly",
+      path: "M86 96 C125 78 176 78 224 102",
+      start: pose({ head: [84, 126], torso: [96, 128, 158, 146], leftArm: [118, 136, 92, 158], rightArm: [118, 136, 134, 158], leftLeg: [158, 146, 204, 158], rightLeg: [158, 146, 122, 158] }),
+      finish: pose({ head: [226, 102], torso: [238, 106, 268, 138], leftArm: [252, 122, 228, 146], rightArm: [252, 122, 280, 146], leftLeg: [268, 138, 236, 158], rightLeg: [268, 138, 292, 158] })
+    },
+    standing: {
+      label: "Smooth, controlled reps",
+      path: "M106 88 C140 70 178 70 214 88",
+      start: pose({ head: [110, 60], torso: [110, 75, 110, 120], leftArm: [110, 92, 82, 112], rightArm: [110, 92, 138, 112], leftLeg: [110, 120, 88, 158], rightLeg: [110, 120, 132, 158] }),
+      finish: pose({ head: [214, 60], torso: [214, 75, 214, 120], leftArm: [214, 92, 184, 108], rightArm: [214, 92, 244, 108], leftLeg: [214, 120, 192, 158], rightLeg: [214, 120, 236, 158] })
+    }
+  }[kind];
 
   return `<svg class="movement-svg" viewBox="0 0 320 200" role="img" aria-label="${escapeHtml(exercise.name)} movement diagram">
     <defs>
-      <marker id="${markerId}" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto" markerUnits="userSpaceOnUse">
-        <path d="M0,0 L0,7 L7,3.5 z" fill="#0a84ff" stroke="none"></path>
-      </marker>
+      <filter id="diagramGlow-${exercise.id}" x="-30%" y="-30%" width="160%" height="160%">
+        <feGaussianBlur stdDeviation="3" result="blur"></feGaussianBlur>
+        <feMerge><feMergeNode in="blur"></feMergeNode><feMergeNode in="SourceGraphic"></feMergeNode></feMerge>
+      </filter>
     </defs>
-    <g fill="none" stroke="#18202a" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
-      ${diagrams[kind] || diagrams.standing}
+    <rect x="8" y="8" width="304" height="184" rx="14" fill="#f4f7f8"></rect>
+    <line x1="34" y1="160" x2="286" y2="160" stroke="#cfd9df" stroke-width="4" stroke-linecap="round"></line>
+    <text x="68" y="34" class="diagram-label">Start</text>
+    <text x="218" y="34" class="diagram-label">Finish</text>
+    <text x="160" y="184" text-anchor="middle" class="diagram-cue">${escapeHtml(guide.label)}</text>
+    <path id="motion-${exercise.id}" class="motion-track" d="${guide.path}"></path>
+    <g class="diagram-pose diagram-start">${guide.start}</g>
+    <g class="diagram-pose diagram-finish">${guide.finish}</g>
+    <circle class="motion-dot" r="6" filter="url(#diagramGlow-${exercise.id})">
+      <animateMotion dur="2.4s" repeatCount="indefinite" keyPoints="0;1;1" keyTimes="0;0.72;1" calcMode="linear">
+        <mpath href="#motion-${exercise.id}"></mpath>
+      </animateMotion>
+    </circle>
+    <g class="motion-pulse">
+      <circle r="12">
+        <animateMotion dur="2.4s" repeatCount="indefinite" keyPoints="0;1;1" keyTimes="0;0.72;1" calcMode="linear">
+          <mpath href="#motion-${exercise.id}"></mpath>
+        </animateMotion>
+      </circle>
     </g>
   </svg>`;
 }
