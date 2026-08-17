@@ -711,12 +711,17 @@ textarea {
   height: auto;
 }
 
+.movement-svg .body-line,
 .movement-svg .diagram-pose {
   fill: none;
   stroke: #111827;
   stroke-width: 7;
   stroke-linecap: round;
   stroke-linejoin: round;
+}
+
+.movement-svg circle.body-line {
+  fill: #f7f9fb;
 }
 
 .movement-svg .diagram-start {
@@ -727,9 +732,57 @@ textarea {
   opacity: 0.98;
 }
 
-.movement-svg .diagram-weight {
+.movement-svg .diagram-weight,
+.movement-svg .diagram-prop,
+.movement-svg .moving-weight {
   fill: #111827;
   stroke: none;
+}
+
+.movement-svg .moving-limb,
+.movement-svg .moving-weight {
+  stroke: #0a84ff;
+}
+
+.movement-svg .moving-limb {
+  filter: drop-shadow(0 5px 10px rgba(10, 132, 255, 0.22));
+}
+
+.movement-svg .moving-weight {
+  fill: #0a84ff;
+}
+
+.movement-svg .ground-line,
+.movement-svg .surface-line {
+  fill: #dce6ec;
+  stroke: #d2dee5;
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.movement-svg .surface-line {
+  stroke-width: 0;
+}
+
+.movement-svg .band-line {
+  fill: none;
+  stroke: #0a84ff;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-dasharray: 8 7;
+  opacity: 0.75;
+}
+
+.movement-svg .anchor {
+  fill: #111827;
+}
+
+.movement-svg .target-zone {
+  stroke: #ff9f0a;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-dasharray: 4 7;
+  opacity: 0.8;
 }
 
 .movement-svg .motion-track {
@@ -745,6 +798,15 @@ textarea {
   fill: #0a84ff;
 }
 
+.movement-svg .movement-arrow {
+  fill: none;
+  stroke: #0a84ff;
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-dasharray: 8 8;
+  animation: dashFlow 1.2s linear infinite;
+}
+
 .movement-svg .motion-pulse circle {
   fill: rgba(10, 132, 255, 0.12);
   stroke: rgba(10, 132, 255, 0.28);
@@ -758,10 +820,30 @@ textarea {
   font-weight: 800;
 }
 
+.movement-svg .movement-step {
+  fill: #111827;
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.movement-svg .movement-label {
+  fill: #6b7280;
+  font-size: 12px;
+  font-weight: 800;
+}
+
 .movement-svg .diagram-cue {
   fill: #4b5563;
   font-size: 12px;
   font-weight: 750;
+}
+
+.movement-svg .breath-dot {
+  fill: rgba(10, 132, 255, 0.18);
+  stroke: rgba(10, 132, 255, 0.5);
+  stroke-width: 2;
+  transform-origin: 150px 116px;
+  animation: breatheDot 2.8s ease-in-out infinite;
 }
 
 @keyframes diagramPulse {
@@ -777,7 +859,28 @@ textarea {
   }
 }
 
+@keyframes dashFlow {
+  to {
+    stroke-dashoffset: -16;
+  }
+}
+
+@keyframes breatheDot {
+  0%,
+  100% {
+    transform: scale(0.8);
+    opacity: 0.45;
+  }
+
+  50% {
+    transform: scale(1.45);
+    opacity: 1;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .movement-svg .movement-arrow,
+  .movement-svg .breath-dot,
   .movement-svg .motion-pulse circle {
     animation: none;
   }

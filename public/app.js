@@ -469,95 +469,215 @@ function diagramKind(exercise) {
   return "standing";
 }
 
-function movementDiagram(exercise) {
-  const kind = diagramKind(exercise);
-  const pose = ({ head, torso, leftArm, rightArm, leftLeg, rightLeg, weight }) => `
-    <circle cx="${head[0]}" cy="${head[1]}" r="12"></circle>
-    <line x1="${torso[0]}" y1="${torso[1]}" x2="${torso[2]}" y2="${torso[3]}"></line>
-    <line x1="${leftArm[0]}" y1="${leftArm[1]}" x2="${leftArm[2]}" y2="${leftArm[3]}"></line>
-    <line x1="${rightArm[0]}" y1="${rightArm[1]}" x2="${rightArm[2]}" y2="${rightArm[3]}"></line>
-    <line x1="${leftLeg[0]}" y1="${leftLeg[1]}" x2="${leftLeg[2]}" y2="${leftLeg[3]}"></line>
-    <line x1="${rightLeg[0]}" y1="${rightLeg[1]}" x2="${rightLeg[2]}" y2="${rightLeg[3]}"></line>
-    ${weight ? `<rect class="diagram-weight" x="${weight[0]}" y="${weight[1]}" width="${weight[2]}" height="${weight[3]}" rx="4"></rect>` : ""}
-  `;
-  const guide = {
-    squat: {
-      label: "Sit down, then drive up",
-      path: "M101 64 C134 94 182 94 217 75",
-      start: pose({ head: [92, 60], torso: [92, 75, 92, 116], leftArm: [92, 90, 66, 108], rightArm: [92, 90, 118, 108], leftLeg: [92, 116, 72, 158], rightLeg: [92, 116, 116, 158], weight: [80, 88, 24, 16] }),
-      finish: pose({ head: [222, 82], torso: [222, 97, 210, 130], leftArm: [216, 111, 188, 124], rightArm: [216, 111, 242, 123], leftLeg: [210, 130, 178, 158], rightLeg: [210, 130, 240, 158], weight: [207, 108, 24, 16] })
-    },
-    split: {
-      label: "Lower straight down, then stand",
-      path: "M102 72 C135 108 176 110 214 84",
-      start: pose({ head: [92, 62], torso: [92, 77, 92, 118], leftArm: [92, 94, 70, 112], rightArm: [92, 94, 116, 112], leftLeg: [92, 118, 70, 158], rightLeg: [92, 118, 122, 158] }),
-      finish: pose({ head: [222, 82], torso: [222, 97, 216, 130], leftArm: [218, 112, 190, 122], rightArm: [218, 112, 244, 122], leftLeg: [216, 130, 178, 158], rightLeg: [216, 130, 254, 158] })
-    },
-    hinge: {
-      label: "Push hips back, spine stays long",
-      path: "M104 68 C138 96 174 103 214 86",
-      start: pose({ head: [92, 58], torso: [92, 73, 96, 118], leftArm: [95, 92, 72, 112], rightArm: [95, 92, 120, 112], leftLeg: [96, 118, 76, 158], rightLeg: [96, 118, 118, 158], weight: [77, 110, 18, 18] }),
-      finish: pose({ head: [224, 76], torso: [214, 88, 174, 122], leftArm: [196, 106, 166, 132], rightArm: [196, 106, 226, 128], leftLeg: [174, 122, 164, 158], rightLeg: [174, 122, 228, 158], weight: [154, 128, 18, 18] })
-    },
-    push: {
-      label: "Body moves as one line",
-      path: "M95 118 C134 92 188 94 230 118",
-      start: pose({ head: [86, 112], torso: [98, 116, 154, 138], leftArm: [124, 126, 104, 158], rightArm: [124, 126, 142, 158], leftLeg: [154, 138, 198, 158], rightLeg: [154, 138, 116, 158] }),
-      finish: pose({ head: [220, 126], torso: [232, 130, 270, 148], leftArm: [248, 138, 228, 158], rightArm: [248, 138, 266, 158], leftLeg: [270, 148, 290, 158], rightLeg: [270, 148, 236, 158] })
-    },
-    pull: {
-      label: "Pull elbow toward ribs",
-      path: "M116 108 C145 126 184 126 218 108",
-      start: pose({ head: [88, 70], torso: [98, 82, 134, 120], leftArm: [116, 102, 86, 126], rightArm: [116, 102, 148, 122], leftLeg: [134, 120, 110, 158], rightLeg: [134, 120, 164, 158], weight: [144, 120, 18, 18] }),
-      finish: pose({ head: [222, 70], torso: [232, 82, 258, 120], leftArm: [244, 102, 220, 124], rightArm: [244, 102, 266, 112], leftLeg: [258, 120, 232, 158], rightLeg: [258, 120, 282, 158], weight: [260, 108, 18, 18] })
-    },
-    arms: {
-      label: "Control up and down",
-      path: "M110 104 C144 78 184 78 218 104",
-      start: pose({ head: [94, 58], torso: [94, 73, 94, 120], leftArm: [94, 92, 68, 124], rightArm: [94, 92, 120, 124], leftLeg: [94, 120, 74, 158], rightLeg: [94, 120, 116, 158], weight: [61, 123, 16, 16] }),
-      finish: pose({ head: [220, 58], torso: [220, 73, 220, 120], leftArm: [220, 92, 190, 84], rightArm: [220, 92, 250, 84], leftLeg: [220, 120, 200, 158], rightLeg: [220, 120, 242, 158], weight: [182, 76, 16, 16] })
-    },
-    core: {
-      label: "Brace first, move slowly",
-      path: "M86 96 C125 78 176 78 224 102",
-      start: pose({ head: [84, 126], torso: [96, 128, 158, 146], leftArm: [118, 136, 92, 158], rightArm: [118, 136, 134, 158], leftLeg: [158, 146, 204, 158], rightLeg: [158, 146, 122, 158] }),
-      finish: pose({ head: [226, 102], torso: [238, 106, 268, 138], leftArm: [252, 122, 228, 146], rightArm: [252, 122, 280, 146], leftLeg: [268, 138, 236, 158], rightLeg: [268, 138, 292, 158] })
-    },
-    standing: {
-      label: "Smooth, controlled reps",
-      path: "M106 88 C140 70 178 70 214 88",
-      start: pose({ head: [110, 60], torso: [110, 75, 110, 120], leftArm: [110, 92, 82, 112], rightArm: [110, 92, 138, 112], leftLeg: [110, 120, 88, 158], rightLeg: [110, 120, 132, 158] }),
-      finish: pose({ head: [214, 60], torso: [214, 75, 214, 120], leftArm: [214, 92, 184, 108], rightArm: [214, 92, 244, 108], leftLeg: [214, 120, 192, 158], rightLeg: [214, 120, 236, 158] })
-    }
-  }[kind];
+function visualKind(exercise) {
+  return {
+    "incline-pushup": "inclinePushup",
+    pushup: "pushup",
+    "db-floor-press": "floorPress",
+    "one-arm-row": "dumbbellRow",
+    "band-row": "bandRow",
+    "shoulder-press": "shoulderPress",
+    "lateral-raise": "lateralRaise",
+    "curl-pressdown": "curlExtension",
+    "goblet-squat": "gobletSquat",
+    "bodyweight-squat": "bodyweightSquat",
+    "reverse-lunge": "reverseLunge",
+    "romanian-deadlift": "romanianDeadlift",
+    "glute-bridge": "gluteBridge",
+    "step-up": "stepUp",
+    "calf-raise": "calfRaise",
+    "dead-bug": "deadBug",
+    plank: "plank",
+    "bear-crawl": "bearTap",
+    "squat-to-press": "squatToPress",
+    march: "march"
+  }[exercise.id] || "standing";
+}
 
-  return `<svg class="movement-svg" viewBox="0 0 320 200" role="img" aria-label="${escapeHtml(exercise.name)} movement diagram">
+function movementFigure(kind, id) {
+  const rep = (label) => `<text x="160" y="30" text-anchor="middle" class="movement-step">${label}</text>`;
+  const head = (x, y) => `<circle class="body-line" cx="${x}" cy="${y}" r="12"></circle>`;
+  const db = (x, y) => `<rect class="diagram-prop" x="${x}" y="${y}" width="22" height="14" rx="4"></rect>`;
+  const band = `<path class="band-line" d="M42 112 C94 92 122 92 170 112"></path><circle class="anchor" cx="42" cy="112" r="7"></circle>`;
+  const ground = `<line class="ground-line" x1="34" y1="160" x2="286" y2="160"></line>`;
+
+  const standing = `
+    ${ground}${head(132, 62)}
+    <line class="body-line" x1="132" y1="76" x2="132" y2="118"></line>
+    <line class="body-line" x1="132" y1="118" x2="110" y2="158"></line>
+    <line class="body-line" x1="132" y1="118" x2="154" y2="158"></line>`;
+
+  const visuals = {
+    inclinePushup: `
+      ${rep("Incline push-up: lower chest, press away")}${ground}
+      <rect class="surface-line" x="198" y="104" width="74" height="12" rx="6"></rect>
+      <g class="lift-body">
+        <circle class="body-line" cx="82" cy="100" r="12"></circle>
+        <line class="body-line" x1="94" y1="104" x2="172" y2="126"></line>
+        <line class="body-line moving-limb" x1="174" y1="126" x2="214" y2="111"><animate attributeName="y2" values="111;136;111" dur="2.2s" repeatCount="indefinite"></animate></line>
+        <line class="body-line moving-limb" x1="178" y1="128" x2="226" y2="111"><animate attributeName="y2" values="111;136;111" dur="2.2s" repeatCount="indefinite"></animate></line>
+        <line class="body-line" x1="172" y1="126" x2="70" y2="160"></line>
+      </g>
+      <path class="motion-track" d="M118 90 C156 104 178 112 210 126"></path>`,
+    pushup: `
+      ${rep("Push-up: plank body, elbows bend")}${ground}
+      <g class="lift-body">
+        <circle class="body-line" cx="74" cy="111" r="12"><animate attributeName="cy" values="102;122;102" dur="2.2s" repeatCount="indefinite"></animate></circle>
+        <line class="body-line" x1="86" y1="116" x2="174" y2="143"><animate attributeName="y1" values="106;126;106" dur="2.2s" repeatCount="indefinite"></animate><animate attributeName="y2" values="133;150;133" dur="2.2s" repeatCount="indefinite"></animate></line>
+        <line class="body-line moving-limb" x1="120" y1="126" x2="105" y2="160"><animate attributeName="y1" values="116;136;116" dur="2.2s" repeatCount="indefinite"></animate></line>
+        <line class="body-line moving-limb" x1="124" y1="128" x2="142" y2="160"><animate attributeName="y1" values="118;138;118" dur="2.2s" repeatCount="indefinite"></animate></line>
+        <line class="body-line" x1="174" y1="143" x2="226" y2="160"></line>
+      </g>
+      <path class="movement-arrow" d="M256 82 v54"></path>`,
+    floorPress: `
+      ${rep("Floor press: elbows touch, press weights up")}${ground}
+      <circle class="body-line" cx="90" cy="137" r="12"></circle>
+      <line class="body-line" x1="102" y1="140" x2="180" y2="146"></line>
+      <line class="body-line" x1="178" y1="146" x2="228" y2="158"></line>
+      <line class="body-line moving-limb" x1="130" y1="130" x2="130" y2="90"><animate attributeName="y2" values="130;78;130" dur="2.1s" repeatCount="indefinite"></animate></line>
+      <line class="body-line moving-limb" x1="158" y1="132" x2="158" y2="92"><animate attributeName="y2" values="132;80;132" dur="2.1s" repeatCount="indefinite"></animate></line>
+      <rect class="diagram-prop moving-weight" x="119" y="72" width="22" height="14" rx="4"><animate attributeName="y" values="122;72;122" dur="2.1s" repeatCount="indefinite"></animate></rect>
+      <rect class="diagram-prop moving-weight" x="147" y="74" width="22" height="14" rx="4"><animate attributeName="y" values="124;74;124" dur="2.1s" repeatCount="indefinite"></animate></rect>`,
+    dumbbellRow: `
+      ${rep("Row: elbow travels toward back pocket")}${ground}
+      <circle class="body-line" cx="96" cy="76" r="12"></circle>
+      <line class="body-line" x1="108" y1="86" x2="164" y2="122"></line>
+      <line class="body-line" x1="164" y1="122" x2="138" y2="160"></line>
+      <line class="body-line" x1="164" y1="122" x2="210" y2="160"></line>
+      <line class="body-line" x1="124" y1="102" x2="84" y2="132"></line>
+      <line class="body-line moving-limb" x1="128" y1="102" x2="174" y2="130"><animate attributeName="x2" values="188;142;188" dur="2s" repeatCount="indefinite"></animate><animate attributeName="y2" values="140;108;140" dur="2s" repeatCount="indefinite"></animate></line>
+      <rect class="diagram-prop moving-weight" x="178" y="134" width="22" height="14" rx="4"><animate attributeName="x" values="178;132;178" dur="2s" repeatCount="indefinite"></animate><animate attributeName="y" values="134;104;134" dur="2s" repeatCount="indefinite"></animate></rect>`,
+    bandRow: `
+      ${rep("Band row: pull handles to ribs")}${ground}${band}
+      <circle class="body-line" cx="218" cy="70" r="12"></circle>
+      <line class="body-line" x1="218" y1="84" x2="218" y2="124"></line>
+      <line class="body-line" x1="218" y1="124" x2="196" y2="160"></line>
+      <line class="body-line" x1="218" y1="124" x2="240" y2="160"></line>
+      <line class="body-line moving-limb" x1="218" y1="100" x2="170" y2="112"><animate attributeName="x2" values="170;206;170" dur="2s" repeatCount="indefinite"></animate></line>
+      <circle class="moving-weight" cx="170" cy="112" r="6"><animate attributeName="cx" values="170;206;170" dur="2s" repeatCount="indefinite"></animate></circle>`,
+    shoulderPress: `
+      ${rep("Shoulder press: ribs down, press overhead")}${standing}
+      <line class="body-line moving-limb" x1="132" y1="92" x2="106" y2="88"><animate attributeName="y2" values="114;54;114" dur="2.1s" repeatCount="indefinite"></animate></line>
+      <line class="body-line moving-limb" x1="132" y1="92" x2="158" y2="88"><animate attributeName="y2" values="114;54;114" dur="2.1s" repeatCount="indefinite"></animate></line>
+      <rect class="diagram-prop moving-weight" x="96" y="47" width="20" height="14" rx="4"><animate attributeName="y" values="107;47;107" dur="2.1s" repeatCount="indefinite"></animate></rect>
+      <rect class="diagram-prop moving-weight" x="148" y="47" width="20" height="14" rx="4"><animate attributeName="y" values="107;47;107" dur="2.1s" repeatCount="indefinite"></animate></rect>`,
+    lateralRaise: `
+      ${rep("Lateral raise: elbows lift to shoulder height")}${standing}
+      <line class="body-line moving-limb" x1="132" y1="92" x2="98" y2="124"><animate attributeName="x2" values="108;82;108" dur="2.2s" repeatCount="indefinite"></animate><animate attributeName="y2" values="124;92;124" dur="2.2s" repeatCount="indefinite"></animate></line>
+      <line class="body-line moving-limb" x1="132" y1="92" x2="166" y2="124"><animate attributeName="x2" values="156;182;156" dur="2.2s" repeatCount="indefinite"></animate><animate attributeName="y2" values="124;92;124" dur="2.2s" repeatCount="indefinite"></animate></line>
+      <line class="target-zone" x1="72" y1="92" x2="192" y2="92"></line>`,
+    curlExtension: `
+      ${rep("Curl, then extend triceps with control")}${standing}
+      <line class="body-line moving-limb" x1="132" y1="92" x2="112" y2="126"><animate attributeName="y2" values="126;94;126" dur="2.4s" repeatCount="indefinite"></animate></line>
+      <line class="body-line moving-limb" x1="132" y1="92" x2="152" y2="126"><animate attributeName="y2" values="126;94;126" dur="2.4s" repeatCount="indefinite"></animate></line>
+      <text x="214" y="98" class="movement-label">curl + extend</text>
+      ${db(102, 122)}${db(150, 122)}`,
+    gobletSquat: `
+      ${rep("Goblet squat: sit between feet, stand tall")}${ground}
+      <g class="lift-body">
+        <circle class="body-line" cx="152" cy="62" r="12"><animate attributeName="cy" values="62;84;62" dur="2.3s" repeatCount="indefinite"></animate></circle>
+        <line class="body-line" x1="152" y1="76" x2="152" y2="116"><animate attributeName="y1" values="76;98;76" dur="2.3s" repeatCount="indefinite"></animate><animate attributeName="y2" values="116;134;116" dur="2.3s" repeatCount="indefinite"></animate></line>
+        <line class="body-line moving-limb" x1="152" y1="116" x2="120" y2="160"><animate attributeName="y1" values="116;134;116" dur="2.3s" repeatCount="indefinite"></animate></line>
+        <line class="body-line moving-limb" x1="152" y1="116" x2="186" y2="160"><animate attributeName="y1" values="116;134;116" dur="2.3s" repeatCount="indefinite"></animate></line>
+        <rect class="diagram-prop moving-weight" x="140" y="86" width="24" height="18" rx="5"><animate attributeName="y" values="86;108;86" dur="2.3s" repeatCount="indefinite"></animate></rect>
+      </g>`,
+    bodyweightSquat: `
+      ${rep("Bodyweight squat: hips back, knees track")}${ground}
+      <g class="lift-body">
+        <circle class="body-line" cx="154" cy="60" r="12"><animate attributeName="cy" values="60;84;60" dur="2.3s" repeatCount="indefinite"></animate></circle>
+        <line class="body-line" x1="154" y1="74" x2="154" y2="116"><animate attributeName="y1" values="74;98;74" dur="2.3s" repeatCount="indefinite"></animate><animate attributeName="y2" values="116;134;116" dur="2.3s" repeatCount="indefinite"></animate></line>
+        <line class="body-line moving-limb" x1="154" y1="94" x2="122" y2="110"><animate attributeName="y1" values="94;116;94" dur="2.3s" repeatCount="indefinite"></animate><animate attributeName="y2" values="110;132;110" dur="2.3s" repeatCount="indefinite"></animate></line>
+        <line class="body-line moving-limb" x1="154" y1="116" x2="122" y2="160"><animate attributeName="y1" values="116;134;116" dur="2.3s" repeatCount="indefinite"></animate></line>
+        <line class="body-line moving-limb" x1="154" y1="116" x2="190" y2="160"><animate attributeName="y1" values="116;134;116" dur="2.3s" repeatCount="indefinite"></animate></line>
+      </g>`,
+    reverseLunge: `
+      ${rep("Reverse lunge: step back, front leg drives")}${ground}
+      <circle class="body-line" cx="154" cy="58" r="12"></circle>
+      <line class="body-line" x1="154" y1="72" x2="154" y2="116"></line>
+      <line class="body-line" x1="154" y1="92" x2="126" y2="116"></line>
+      <line class="body-line" x1="154" y1="92" x2="182" y2="116"></line>
+      <line class="body-line" x1="154" y1="116" x2="132" y2="160"></line>
+      <line class="body-line moving-limb" x1="154" y1="116" x2="202" y2="160"><animate attributeName="x2" values="164;214;164" dur="2.4s" repeatCount="indefinite"></animate></line>
+      <path class="motion-track" d="M164 148 C180 150 196 152 214 158"></path>`,
+    romanianDeadlift: `
+      ${rep("RDL: hinge hips back, weight close")}${ground}
+      <circle class="body-line" cx="120" cy="62" r="12"><animate attributeName="cx" values="120;96;120" dur="2.3s" repeatCount="indefinite"></animate><animate attributeName="cy" values="62;78;62" dur="2.3s" repeatCount="indefinite"></animate></circle>
+      <line class="body-line" x1="120" y1="76" x2="146" y2="118"><animate attributeName="x1" values="120;96;120" dur="2.3s" repeatCount="indefinite"></animate><animate attributeName="y1" values="76;92;76" dur="2.3s" repeatCount="indefinite"></animate><animate attributeName="x2" values="146;136;146" dur="2.3s" repeatCount="indefinite"></animate></line>
+      <line class="body-line" x1="146" y1="118" x2="124" y2="160"></line>
+      <line class="body-line" x1="146" y1="118" x2="168" y2="160"></line>
+      <rect class="diagram-prop moving-weight" x="130" y="114" width="22" height="14" rx="4"><animate attributeName="y" values="96;126;96" dur="2.3s" repeatCount="indefinite"></animate></rect>`,
+    gluteBridge: `
+      ${rep("Glute bridge: drive hips up, ribs down")}${ground}
+      <circle class="body-line" cx="82" cy="138" r="12"></circle>
+      <line class="body-line" x1="94" y1="140" x2="154" y2="146"></line>
+      <line class="body-line moving-limb" x1="154" y1="146" x2="206" y2="160"><animate attributeName="y1" values="146;112;146" dur="2.2s" repeatCount="indefinite"></animate></line>
+      <line class="body-line" x1="206" y1="160" x2="236" y2="160"></line>
+      <path class="movement-arrow" d="M158 138 v-42"></path>`,
+    stepUp: `
+      ${rep("Step-up: whole foot plants, stand tall")}${ground}
+      <rect class="surface-line" x="190" y="128" width="72" height="32" rx="6"></rect>
+      <circle class="body-line" cx="134" cy="60" r="12"><animate attributeName="cx" values="116;208;116" dur="2.8s" repeatCount="indefinite"></animate><animate attributeName="cy" values="78;52;78" dur="2.8s" repeatCount="indefinite"></animate></circle>
+      <line class="body-line moving-limb" x1="134" y1="74" x2="134" y2="116"><animate attributeName="x1" values="116;208;116" dur="2.8s" repeatCount="indefinite"></animate><animate attributeName="x2" values="116;208;116" dur="2.8s" repeatCount="indefinite"></animate><animate attributeName="y1" values="92;66;92" dur="2.8s" repeatCount="indefinite"></animate><animate attributeName="y2" values="130;108;130" dur="2.8s" repeatCount="indefinite"></animate></line>
+      <path class="motion-track" d="M116 138 C146 122 174 92 208 74"></path>`,
+    calfRaise: `
+      ${rep("Calf raise: rise through big toe, pause")}${standing}
+      <g class="lift-body">
+        <animateTransform attributeName="transform" type="translate" values="0 0;0 -18;0 0" dur="2s" repeatCount="indefinite"></animateTransform>
+        <line class="body-line moving-limb" x1="110" y1="158" x2="92" y2="160"></line>
+        <line class="body-line moving-limb" x1="154" y1="158" x2="172" y2="160"></line>
+      </g>
+      <path class="movement-arrow" d="M218 148 v-40"></path>`,
+    deadBug: `
+      ${rep("Dead bug: opposite arm and leg extend")}${ground}
+      <circle class="body-line" cx="154" cy="118" r="12"></circle>
+      <line class="body-line" x1="142" y1="124" x2="116" y2="144"></line>
+      <line class="body-line" x1="166" y1="124" x2="192" y2="144"></line>
+      <line class="body-line moving-limb" x1="148" y1="112" x2="122" y2="76"><animate attributeName="x2" values="132;100;132" dur="2.4s" repeatCount="indefinite"></animate><animate attributeName="y2" values="92;66;92" dur="2.4s" repeatCount="indefinite"></animate></line>
+      <line class="body-line moving-limb" x1="160" y1="128" x2="196" y2="154"><animate attributeName="x2" values="180;228;180" dur="2.4s" repeatCount="indefinite"></animate><animate attributeName="y2" values="138;158;138" dur="2.4s" repeatCount="indefinite"></animate></line>`,
+    plank: `
+      ${rep("Plank: hold one long line and breathe")}${ground}
+      <circle class="body-line" cx="82" cy="116" r="12"></circle>
+      <line class="body-line" x1="94" y1="120" x2="188" y2="144"></line>
+      <line class="body-line" x1="116" y1="126" x2="104" y2="160"></line>
+      <line class="body-line" x1="188" y1="144" x2="242" y2="160"></line>
+      <circle class="breath-dot" cx="150" cy="116" r="8"></circle>`,
+    bearTap: `
+      ${rep("Bear tap: knees hover, hips stay quiet")}${ground}
+      <circle class="body-line" cx="96" cy="92" r="12"></circle>
+      <line class="body-line" x1="108" y1="98" x2="176" y2="118"></line>
+      <line class="body-line" x1="138" y1="106" x2="122" y2="150"></line>
+      <line class="body-line" x1="176" y1="118" x2="202" y2="150"></line>
+      <line class="body-line moving-limb" x1="128" y1="104" x2="86" y2="144"><animate attributeName="x2" values="86;136;86" dur="2.3s" repeatCount="indefinite"></animate><animate attributeName="y2" values="144;94;144" dur="2.3s" repeatCount="indefinite"></animate></line>
+      <line class="target-zone" x1="128" y1="94" x2="150" y2="112"></line>`,
+    squatToPress: `
+      ${rep("Squat to press: legs drive before arms")}${ground}
+      <circle class="body-line" cx="154" cy="70" r="12"><animate attributeName="cy" values="82;58;82" dur="2.7s" repeatCount="indefinite"></animate></circle>
+      <line class="body-line" x1="154" y1="84" x2="154" y2="126"><animate attributeName="y1" values="96;72;96" dur="2.7s" repeatCount="indefinite"></animate><animate attributeName="y2" values="134;116;134" dur="2.7s" repeatCount="indefinite"></animate></line>
+      <line class="body-line moving-limb" x1="154" y1="96" x2="128" y2="112"><animate attributeName="y2" values="112;50;112" dur="2.7s" repeatCount="indefinite"></animate></line>
+      <line class="body-line moving-limb" x1="154" y1="96" x2="180" y2="112"><animate attributeName="y2" values="112;50;112" dur="2.7s" repeatCount="indefinite"></animate></line>
+      <line class="body-line" x1="154" y1="126" x2="126" y2="160"></line>
+      <line class="body-line" x1="154" y1="126" x2="184" y2="160"></line>`,
+    march: `
+      ${rep("March: tall posture, knee to hip height")}${standing}
+      <line class="body-line moving-limb" x1="132" y1="118" x2="170" y2="154"><animate attributeName="x2" values="170;184;170" dur="2s" repeatCount="indefinite"></animate><animate attributeName="y2" values="154;104;154" dur="2s" repeatCount="indefinite"></animate></line>
+      <line class="target-zone" x1="166" y1="104" x2="204" y2="104"></line>`
+  };
+
+  return visuals[kind] || `${rep("Move smoothly with control")}${standing}`;
+}
+
+function movementDiagram(exercise) {
+  const kind = visualKind(exercise);
+
+  return `<svg class="movement-svg movement-${kind}" viewBox="0 0 320 200" role="img" aria-label="${escapeHtml(exercise.name)} movement animation">
     <defs>
-      <filter id="diagramGlow-${exercise.id}" x="-30%" y="-30%" width="160%" height="160%">
-        <feGaussianBlur stdDeviation="3" result="blur"></feGaussianBlur>
-        <feMerge><feMergeNode in="blur"></feMergeNode><feMergeNode in="SourceGraphic"></feMergeNode></feMerge>
-      </filter>
+      <marker id="arrow-${exercise.id}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" class="arrow-head"></path>
+      </marker>
     </defs>
-    <rect x="8" y="8" width="304" height="184" rx="14" fill="#f4f7f8"></rect>
-    <line x1="34" y1="160" x2="286" y2="160" stroke="#cfd9df" stroke-width="4" stroke-linecap="round"></line>
-    <text x="68" y="34" class="diagram-label">Start</text>
-    <text x="218" y="34" class="diagram-label">Finish</text>
-    <text x="160" y="184" text-anchor="middle" class="diagram-cue">${escapeHtml(guide.label)}</text>
-    <path id="motion-${exercise.id}" class="motion-track" d="${guide.path}"></path>
-    <g class="diagram-pose diagram-start">${guide.start}</g>
-    <g class="diagram-pose diagram-finish">${guide.finish}</g>
-    <circle class="motion-dot" r="6" filter="url(#diagramGlow-${exercise.id})">
-      <animateMotion dur="2.4s" repeatCount="indefinite" keyPoints="0;1;1" keyTimes="0;0.72;1" calcMode="linear">
-        <mpath href="#motion-${exercise.id}"></mpath>
-      </animateMotion>
-    </circle>
-    <g class="motion-pulse">
-      <circle r="12">
-        <animateMotion dur="2.4s" repeatCount="indefinite" keyPoints="0;1;1" keyTimes="0;0.72;1" calcMode="linear">
-          <mpath href="#motion-${exercise.id}"></mpath>
-        </animateMotion>
-      </circle>
-    </g>
+    <rect x="8" y="8" width="304" height="184" rx="16" fill="#f7f9fb"></rect>
+    ${movementFigure(kind, exercise.id)}
+    <text x="160" y="184" text-anchor="middle" class="diagram-cue">${escapeHtml(exercise.cues[0] || "Move with control")}</text>
   </svg>`;
 }
 
