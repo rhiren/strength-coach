@@ -48,6 +48,20 @@ const CONSTRAINTS = [
   { id: "no-overhead", label: "No overhead pressing", terms: ["overhead", "shoulder press", "press"] }
 ];
 
+const EXERCISE_MEDIA = {
+  // Add real demos here as local assets become available.
+  // Example:
+  // pushup: {
+  //   video: "./assets/exercises/pushup/demo.mp4",
+  //   poster: "./assets/exercises/pushup/poster.jpg",
+  //   frames: [
+  //     { label: "Setup", image: "./assets/exercises/pushup/setup.jpg" },
+  //     { label: "Work", image: "./assets/exercises/pushup/bottom.jpg" },
+  //     { label: "Return", image: "./assets/exercises/pushup/top.jpg" }
+  //   ]
+  // }
+};
+
 const EXERCISES = [
   {
     id: "incline-pushup",
@@ -867,6 +881,66 @@ function exerciseStepVisual(exercise, variant = "full") {
   `;
 }
 
+function demoSearchUrl(exercise) {
+  const query = encodeURIComponent(`${exercise.name} proper form exercise demonstration side view`);
+  return `https://www.youtube.com/results?search_query=${query}`;
+}
+
+function exerciseMediaVisual(exercise, variant = "full") {
+  const media = EXERCISE_MEDIA[exercise.id];
+  const anchors = [
+    exercise.cues[0] || "Set up with control",
+    exercise.cues[1] || "Move through a pain-free range",
+    exercise.cues[2] || "Return without rushing"
+  ];
+  const slots = [
+    { label: "Setup", text: anchors[0] },
+    { label: "Work", text: anchors[1] },
+    { label: "Return", text: anchors[2] }
+  ];
+
+  if (media?.video) {
+    return `
+      <div class="media-visual ${variant === "compact" ? "compact-media-visual" : ""}">
+        <div class="demo-stage">
+          <video src="${escapeHtml(media.video)}" ${media.poster ? `poster="${escapeHtml(media.poster)}"` : ""} controls muted loop playsinline></video>
+        </div>
+        <div class="media-slots">
+          ${(media.frames || slots).slice(0, 3).map((slot) => `
+            <article class="reference-slot ${slot.image ? "has-image" : ""}">
+              ${slot.image ? `<img src="${escapeHtml(slot.image)}" alt="${escapeHtml(exercise.name)} ${escapeHtml(slot.label)} reference" />` : `<span>${escapeHtml(slot.label)}</span>`}
+              <strong>${escapeHtml(slot.label)}</strong>
+              <small>${escapeHtml(slot.text || "")}</small>
+            </article>
+          `).join("")}
+        </div>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="media-visual missing-demo ${variant === "compact" ? "compact-media-visual" : ""}">
+      <div class="demo-stage media-placeholder">
+        <div>
+          <span class="media-kicker">Real demo needed</span>
+          <strong>${escapeHtml(exercise.name)}</strong>
+          <p>Use a side-angle video or clear reference photos before trusting a visual demo.</p>
+          ${variant === "compact" ? "" : `<a class="media-link" href="${demoSearchUrl(exercise)}" target="_blank" rel="noreferrer">Find reference video</a>`}
+        </div>
+      </div>
+      <div class="media-slots">
+        ${slots.map((slot) => `
+          <article class="reference-slot">
+            <span>${escapeHtml(slot.label)}</span>
+            <strong>${escapeHtml(slot.label)}</strong>
+            <small>${escapeHtml(slot.text)}</small>
+          </article>
+        `).join("")}
+      </div>
+    </div>
+  `;
+}
+
 function learningPoints(exercise) {
   const kind = diagramKind(exercise);
   const patterns = {
@@ -1067,7 +1141,7 @@ function renderPlayer() {
   $("#nextExercise").innerHTML = next
     ? `<strong>${escapeHtml(next.exercise.name)}</strong><span>Set ${next.setNumber} of ${next.totalSets} · ${escapeHtml(next.reps)}</span>`
     : `<strong>Done</strong><span>Finish and save the session.</span>`;
-  $("#playerVisual").innerHTML = inWarmup ? `<div class="empty-mini">Warm up smoothly before the first set.</div>` : exerciseStepVisual(set.exercise, "compact");
+  $("#playerVisual").innerHTML = inWarmup ? `<div class="empty-mini">Warm up smoothly before the first set.</div>` : exerciseMediaVisual(set.exercise, "compact");
   $("#substitution").innerHTML = inWarmup ? "Working sets will show easier, harder, no-equipment, and dumbbell swaps." : renderSwaps(set.exercise);
   $("#setLogger").hidden = state.phase !== "set";
   $("#startPause").disabled = state.phase === "rest" || state.phase === "set" || state.phase === "warmup" || state.phase === "complete";
@@ -1319,7 +1393,7 @@ function renderLearn() {
     const prescription = exercise.prescription || prescriptionFor(exercise, currentSettings());
     return `
       <article class="learn-card" id="learn-${escapeHtml(exercise.id)}">
-        <div class="learn-visual">${exerciseStepVisual(exercise)}</div>
+        <div class="learn-visual">${exerciseMediaVisual(exercise)}</div>
         <div class="learn-body">
           <div class="learn-head">
             <div>
