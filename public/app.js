@@ -681,6 +681,192 @@ function movementDiagram(exercise) {
   </svg>`;
 }
 
+function visualStepGuide(exercise) {
+  const kind = visualKind(exercise);
+  const guides = {
+    inclinePushup: ["Hands set", "Lower chest", "Press away"],
+    pushup: ["Brace plank", "Lower as one", "Press tall"],
+    floorPress: ["Elbows down", "Press weights", "Control down"],
+    dumbbellRow: ["Set hinge", "Elbow back", "Lower slow"],
+    bandRow: ["Tall chest", "Pull handles", "Reach slow"],
+    shoulderPress: ["Stack ribs", "Press overhead", "Lower clean"],
+    lateralRaise: ["Soft elbows", "Lift to side", "Lower slow"],
+    curlExtension: ["Elbows quiet", "Curl or extend", "Return slow"],
+    gobletSquat: ["Brace tall", "Sit between feet", "Stand strong"],
+    bodyweightSquat: ["Feet rooted", "Hips back", "Stand tall"],
+    reverseLunge: ["Stand tall", "Step back", "Drive front leg"],
+    romanianDeadlift: ["Soft knees", "Hinge hips", "Stand tall"],
+    gluteBridge: ["Ribs down", "Lift hips", "Lower smooth"],
+    stepUp: ["Foot planted", "Stand on box", "Step down"],
+    calfRaise: ["Feet rooted", "Rise up", "Lower slow"],
+    deadBug: ["Brace back", "Extend opposite", "Return controlled"],
+    plank: ["Elbows set", "Long line", "Breathe"],
+    bearTap: ["Knees hover", "Tap shoulder", "Stay quiet"],
+    squatToPress: ["Squat first", "Drive and press", "Reset clean"],
+    march: ["Stand tall", "Knee up", "Switch sides"]
+  };
+  const labels = guides[kind] || ["Set up", "Move", "Return"];
+  const cues = [
+    exercise.cues[0] || labels[0],
+    exercise.cues[1] || labels[1],
+    exercise.cues[2] || labels[2]
+  ];
+  return labels.map((label, index) => ({
+    label,
+    cue: cues[index],
+    art: stepIllustration(kind, index)
+  }));
+}
+
+function stepIllustration(kind, step) {
+  const familyMap = {
+    inclinePushup: "push",
+    pushup: "push",
+    floorPress: "press",
+    dumbbellRow: "pull",
+    bandRow: "pull",
+    shoulderPress: "overhead",
+    lateralRaise: "raise",
+    curlExtension: "arms",
+    gobletSquat: "squat",
+    bodyweightSquat: "squat",
+    reverseLunge: "lunge",
+    romanianDeadlift: "hinge",
+    gluteBridge: "bridge",
+    stepUp: "step",
+    calfRaise: "calf",
+    deadBug: "core",
+    plank: "plank",
+    bearTap: "bear",
+    squatToPress: "squatPress",
+    march: "march"
+  };
+  const family = familyMap[kind] || "standing";
+  const stage = ["setup", "work", "return"][step] || "setup";
+  const ground = `<line class="step-ground" x1="24" y1="132" x2="176" y2="132"></line>`;
+  const head = (x, y) => `<circle class="step-body" cx="${x}" cy="${y}" r="10"></circle>`;
+  const line = (x1, y1, x2, y2, moving = false) => `<line class="${moving ? "step-body step-blue" : "step-body"}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"></line>`;
+  const weight = (x, y) => `<rect class="step-weight" x="${x}" y="${y}" width="18" height="12" rx="4"></rect>`;
+  const arrow = (path) => `<path class="step-arrow" d="${path}"></path>`;
+  const target = (x1, y1, x2, y2) => `<line class="step-target" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"></line>`;
+
+  const scenes = {
+    squat: {
+      setup: `${ground}${head(100, 42)}${line(100, 54, 100, 88)}${line(100, 88, 82, 132)}${line(100, 88, 120, 132)}${target(70, 132, 130, 132)}`,
+      work: `${ground}${head(100, 62)}${line(100, 74, 96, 102)}${line(96, 102, 74, 132, true)}${line(96, 102, 126, 132, true)}${arrow("M136 50 C126 70 120 86 118 108")}`,
+      return: `${ground}${head(100, 42)}${line(100, 54, 100, 88)}${line(100, 88, 82, 132, true)}${line(100, 88, 120, 132, true)}${arrow("M144 106 C138 80 124 58 108 44")}`
+    },
+    lunge: {
+      setup: `${ground}${head(86, 42)}${line(86, 54, 86, 90)}${line(86, 90, 70, 132)}${line(86, 90, 104, 132)}${arrow("M118 120 C132 122 146 126 158 132")}`,
+      work: `${ground}${head(100, 56)}${line(100, 68, 98, 100)}${line(98, 100, 72, 132, true)}${line(98, 100, 148, 132, true)}${target(66, 132, 112, 132)}`,
+      return: `${ground}${head(86, 42)}${line(86, 54, 86, 90)}${line(86, 90, 70, 132)}${line(86, 90, 104, 132, true)}${arrow("M154 132 C132 128 112 116 96 96")}`
+    },
+    hinge: {
+      setup: `${ground}${head(88, 42)}${line(88, 54, 102, 92)}${line(102, 92, 84, 132)}${line(102, 92, 122, 132)}${weight(72, 96)}`,
+      work: `${ground}${head(74, 58)}${line(84, 68, 124, 94, true)}${line(124, 94, 100, 132)}${line(124, 94, 142, 132)}${weight(104, 102)}${arrow("M80 46 C66 62 62 84 72 108")}`,
+      return: `${ground}${head(88, 42)}${line(88, 54, 102, 92, true)}${line(102, 92, 84, 132)}${line(102, 92, 122, 132)}${weight(72, 96)}`
+    },
+    bridge: {
+      setup: `${ground}${head(54, 112)}${line(64, 114, 112, 124)}${line(112, 124, 154, 132)}${target(96, 112, 142, 92)}`,
+      work: `${ground}${head(54, 112)}${line(64, 114, 118, 92, true)}${line(118, 92, 154, 132)}${arrow("M104 122 C104 106 110 94 122 84")}`,
+      return: `${ground}${head(54, 112)}${line(64, 114, 112, 124, true)}${line(112, 124, 154, 132)}${arrow("M122 86 C116 104 112 116 112 126")}`
+    },
+    push: {
+      setup: `${ground}${head(56, 86)}${line(66, 90, 126, 112)}${line(126, 112, 164, 132)}${line(108, 106, 92, 132, true)}${target(130, 96, 172, 96)}`,
+      work: `${ground}${head(56, 104)}${line(66, 108, 126, 124)}${line(126, 124, 164, 132)}${line(108, 116, 96, 132, true)}${arrow("M150 78 v38")}`,
+      return: `${ground}${head(56, 86)}${line(66, 90, 126, 112)}${line(126, 112, 164, 132)}${line(108, 106, 92, 132, true)}${arrow("M150 118 v-38")}`
+    },
+    press: {
+      setup: `${ground}${head(58, 112)}${line(68, 114, 124, 120)}${line(92, 108, 92, 82, true)}${line(118, 110, 118, 84, true)}${weight(83, 78)}${weight(109, 80)}`,
+      work: `${ground}${head(58, 112)}${line(68, 114, 124, 120)}${line(92, 108, 92, 50, true)}${line(118, 110, 118, 52, true)}${weight(83, 46)}${weight(109, 48)}${arrow("M150 110 v-56")}`,
+      return: `${ground}${head(58, 112)}${line(68, 114, 124, 120)}${line(92, 108, 92, 82, true)}${line(118, 110, 118, 84, true)}${weight(83, 78)}${weight(109, 80)}`
+    },
+    pull: {
+      setup: `${ground}${head(68, 52)}${line(78, 62, 120, 92)}${line(120, 92, 98, 132)}${line(120, 92, 146, 132)}${line(96, 76, 152, 106, true)}${weight(150, 104)}`,
+      work: `${ground}${head(68, 52)}${line(78, 62, 120, 92)}${line(120, 92, 98, 132)}${line(120, 92, 146, 132)}${line(96, 76, 116, 86, true)}${weight(116, 84)}${arrow("M160 112 C140 104 126 94 112 82")}`,
+      return: `${ground}${head(68, 52)}${line(78, 62, 120, 92)}${line(120, 92, 98, 132)}${line(120, 92, 146, 132)}${line(96, 76, 152, 106, true)}${weight(150, 104)}`
+    },
+    overhead: {
+      setup: `${ground}${head(100, 42)}${line(100, 54, 100, 90)}${line(100, 90, 82, 132)}${line(100, 90, 118, 132)}${line(100, 66, 78, 82, true)}${line(100, 66, 122, 82, true)}`,
+      work: `${ground}${head(100, 42)}${line(100, 54, 100, 90)}${line(100, 90, 82, 132)}${line(100, 90, 118, 132)}${line(100, 64, 78, 28, true)}${line(100, 64, 122, 28, true)}${arrow("M150 92 v-58")}`,
+      return: `${ground}${head(100, 42)}${line(100, 54, 100, 90)}${line(100, 90, 82, 132)}${line(100, 90, 118, 132)}${line(100, 66, 78, 82, true)}${line(100, 66, 122, 82, true)}`
+    },
+    raise: {
+      setup: `${ground}${head(100, 42)}${line(100, 54, 100, 90)}${line(100, 90, 82, 132)}${line(100, 90, 118, 132)}${line(100, 66, 78, 100, true)}${line(100, 66, 122, 100, true)}`,
+      work: `${ground}${head(100, 42)}${line(100, 54, 100, 90)}${line(100, 90, 82, 132)}${line(100, 90, 118, 132)}${line(100, 66, 58, 66, true)}${line(100, 66, 142, 66, true)}${target(52, 66, 148, 66)}`,
+      return: `${ground}${head(100, 42)}${line(100, 54, 100, 90)}${line(100, 90, 82, 132)}${line(100, 90, 118, 132)}${line(100, 66, 78, 100, true)}${line(100, 66, 122, 100, true)}`
+    },
+    arms: {
+      setup: `${ground}${head(100, 42)}${line(100, 54, 100, 90)}${line(100, 90, 82, 132)}${line(100, 90, 118, 132)}${line(100, 66, 84, 104, true)}${line(100, 66, 116, 104, true)}`,
+      work: `${ground}${head(100, 42)}${line(100, 54, 100, 90)}${line(100, 90, 82, 132)}${line(100, 90, 118, 132)}${line(100, 66, 82, 74, true)}${line(100, 66, 118, 74, true)}${arrow("M146 106 C136 88 132 74 130 58")}`,
+      return: `${ground}${head(100, 42)}${line(100, 54, 100, 90)}${line(100, 90, 82, 132)}${line(100, 90, 118, 132)}${line(100, 66, 84, 104, true)}${line(100, 66, 116, 104, true)}`
+    },
+    step: {
+      setup: `${ground}<rect class="step-platform" x="118" y="104" width="48" height="28" rx="6"></rect>${head(76, 52)}${line(76, 64, 76, 96)}${line(76, 96, 58, 132)}${line(76, 96, 118, 112, true)}`,
+      work: `${ground}<rect class="step-platform" x="118" y="104" width="48" height="28" rx="6"></rect>${head(140, 42)}${line(140, 54, 140, 92)}${line(140, 92, 124, 104, true)}${line(140, 92, 154, 132)}${arrow("M80 118 C100 92 116 70 136 50")}`,
+      return: `${ground}<rect class="step-platform" x="118" y="104" width="48" height="28" rx="6"></rect>${head(76, 52)}${line(76, 64, 76, 96)}${line(76, 96, 58, 132)}${line(76, 96, 118, 112, true)}`
+    },
+    calf: {
+      setup: `${ground}${head(100, 42)}${line(100, 54, 100, 90)}${line(100, 90, 82, 132)}${line(100, 90, 118, 132)}${target(70, 132, 130, 132)}`,
+      work: `${ground}${head(100, 30)}${line(100, 42, 100, 78)}${line(100, 78, 84, 118, true)}${line(100, 78, 116, 118, true)}${arrow("M148 122 v-46")}`,
+      return: `${ground}${head(100, 42)}${line(100, 54, 100, 90)}${line(100, 90, 82, 132, true)}${line(100, 90, 118, 132, true)}`
+    },
+    core: {
+      setup: `${ground}${head(90, 94)}${line(100, 98, 134, 104)}${line(104, 92, 86, 62, true)}${line(132, 108, 160, 126, true)}${target(82, 132, 168, 132)}`,
+      work: `${ground}${head(90, 94)}${line(100, 98, 134, 104)}${line(104, 92, 66, 44, true)}${line(132, 108, 176, 132, true)}${arrow("M122 60 C98 54 78 48 62 40")}`,
+      return: `${ground}${head(90, 94)}${line(100, 98, 134, 104)}${line(104, 92, 86, 62, true)}${line(132, 108, 160, 126, true)}`
+    },
+    plank: {
+      setup: `${ground}${head(54, 90)}${line(64, 94, 130, 116)}${line(88, 102, 78, 132)}${line(130, 116, 168, 132)}${target(54, 90, 168, 132)}`,
+      work: `${ground}${head(54, 90)}${line(64, 94, 130, 116)}${line(88, 102, 78, 132)}${line(130, 116, 168, 132)}<circle class="step-breath" cx="104" cy="88" r="10"></circle>`,
+      return: `${ground}${head(54, 90)}${line(64, 94, 130, 116)}${line(88, 102, 78, 132)}${line(130, 116, 168, 132)}<circle class="step-breath" cx="104" cy="88" r="10"></circle>`
+    },
+    bear: {
+      setup: `${ground}${head(62, 70)}${line(72, 76, 128, 92)}${line(92, 82, 78, 124)}${line(128, 92, 150, 124)}${target(84, 124, 152, 124)}`,
+      work: `${ground}${head(62, 70)}${line(72, 76, 128, 92)}${line(92, 82, 116, 70, true)}${line(128, 92, 150, 124)}${arrow("M82 122 C92 98 104 82 116 70")}`,
+      return: `${ground}${head(62, 70)}${line(72, 76, 128, 92)}${line(92, 82, 78, 124, true)}${line(128, 92, 150, 124)}`
+    },
+    squatPress: {
+      setup: `${ground}${head(100, 60)}${line(100, 72, 98, 104)}${line(98, 104, 74, 132)}${line(98, 104, 126, 132)}${line(100, 78, 76, 94, true)}${line(100, 78, 124, 94, true)}`,
+      work: `${ground}${head(100, 38)}${line(100, 50, 100, 88)}${line(100, 88, 82, 132)}${line(100, 88, 118, 132)}${line(100, 62, 76, 28, true)}${line(100, 62, 124, 28, true)}${arrow("M150 112 C140 78 128 48 110 30")}`,
+      return: `${ground}${head(100, 60)}${line(100, 72, 98, 104)}${line(98, 104, 74, 132)}${line(98, 104, 126, 132)}${line(100, 78, 76, 94, true)}${line(100, 78, 124, 94, true)}`
+    },
+    march: {
+      setup: `${ground}${head(100, 42)}${line(100, 54, 100, 90)}${line(100, 90, 82, 132)}${line(100, 90, 118, 132)}${target(120, 82, 156, 82)}`,
+      work: `${ground}${head(100, 42)}${line(100, 54, 100, 90)}${line(100, 90, 82, 132)}${line(100, 90, 142, 82, true)}${arrow("M138 128 C150 112 154 96 146 82")}`,
+      return: `${ground}${head(100, 42)}${line(100, 54, 100, 90)}${line(100, 90, 118, 132)}${line(100, 90, 82, 82, true)}`
+    },
+    standing: {
+      setup: `${ground}${head(100, 42)}${line(100, 54, 100, 90)}${line(100, 90, 82, 132)}${line(100, 90, 118, 132)}`,
+      work: `${ground}${head(100, 42)}${line(100, 54, 100, 90)}${line(100, 90, 82, 132)}${line(100, 90, 118, 132)}${arrow("M140 108 C150 92 150 72 138 56")}`,
+      return: `${ground}${head(100, 42)}${line(100, 54, 100, 90)}${line(100, 90, 82, 132)}${line(100, 90, 118, 132)}`
+    }
+  };
+
+  return `<svg class="step-svg step-${family}" viewBox="0 0 200 150" role="img" aria-hidden="true">
+    <rect x="10" y="10" width="180" height="130" rx="18"></rect>
+    ${scenes[family]?.[stage] || scenes.standing[stage]}
+  </svg>`;
+}
+
+function exerciseStepVisual(exercise, variant = "full") {
+  const steps = visualStepGuide(exercise);
+  return `
+    <div class="step-visual ${variant === "compact" ? "compact-step-visual" : ""}" aria-label="${escapeHtml(exercise.name)} visual steps">
+      ${steps.map((step, index) => `
+        <article class="step-card">
+          <div class="step-index">${index + 1}</div>
+          <div class="step-art">${step.art}</div>
+          <div class="step-copy">
+            <strong>${escapeHtml(step.label)}</strong>
+            <span>${escapeHtml(step.cue)}</span>
+          </div>
+        </article>
+      `).join("")}
+    </div>
+  `;
+}
+
 function learningPoints(exercise) {
   const kind = diagramKind(exercise);
   const patterns = {
@@ -881,7 +1067,7 @@ function renderPlayer() {
   $("#nextExercise").innerHTML = next
     ? `<strong>${escapeHtml(next.exercise.name)}</strong><span>Set ${next.setNumber} of ${next.totalSets} · ${escapeHtml(next.reps)}</span>`
     : `<strong>Done</strong><span>Finish and save the session.</span>`;
-  $("#playerVisual").innerHTML = inWarmup ? `<div class="empty-mini">Warm up smoothly before the first set.</div>` : movementDiagram(set.exercise);
+  $("#playerVisual").innerHTML = inWarmup ? `<div class="empty-mini">Warm up smoothly before the first set.</div>` : exerciseStepVisual(set.exercise, "compact");
   $("#substitution").innerHTML = inWarmup ? "Working sets will show easier, harder, no-equipment, and dumbbell swaps." : renderSwaps(set.exercise);
   $("#setLogger").hidden = state.phase !== "set";
   $("#startPause").disabled = state.phase === "rest" || state.phase === "set" || state.phase === "warmup" || state.phase === "complete";
@@ -1133,7 +1319,7 @@ function renderLearn() {
     const prescription = exercise.prescription || prescriptionFor(exercise, currentSettings());
     return `
       <article class="learn-card" id="learn-${escapeHtml(exercise.id)}">
-        <div class="learn-visual">${movementDiagram(exercise)}</div>
+        <div class="learn-visual">${exerciseStepVisual(exercise)}</div>
         <div class="learn-body">
           <div class="learn-head">
             <div>

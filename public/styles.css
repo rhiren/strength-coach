@@ -933,9 +933,146 @@ textarea {
   place-items: center;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background:
-    radial-gradient(circle at 50% 22%, rgba(10, 132, 255, 0.08), transparent 9rem),
-    #fbfcfd;
+  background: #fbfcfd;
+  padding: 12px;
+}
+
+.step-visual {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.step-card {
+  position: relative;
+  min-height: 236px;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  gap: 10px;
+  border: 1px solid rgba(17, 24, 39, 0.08);
+  border-radius: 16px;
+  padding: 10px;
+  background: linear-gradient(180deg, #ffffff, #f7f9fb);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+}
+
+.step-index {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(10, 132, 255, 0.11);
+  color: var(--green-dark);
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.step-art {
+  min-height: 138px;
+  display: grid;
+  place-items: center;
+}
+
+.step-svg {
+  width: 100%;
+  max-width: 190px;
+  height: auto;
+}
+
+.step-svg > rect {
+  fill: #f5f7fa;
+}
+
+.step-body {
+  fill: none;
+  stroke: #111827;
+  stroke-width: 7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+circle.step-body {
+  fill: #f5f7fa;
+}
+
+.step-blue {
+  stroke: #0a84ff;
+  filter: drop-shadow(0 5px 10px rgba(10, 132, 255, 0.18));
+}
+
+.step-weight {
+  fill: #0a84ff;
+}
+
+.step-ground {
+  stroke: #d4dee6;
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.step-arrow {
+  fill: none;
+  stroke: #0a84ff;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-dasharray: 5 7;
+}
+
+.step-target {
+  stroke: #ff9f0a;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-dasharray: 4 7;
+}
+
+.step-platform {
+  fill: #dce6ec;
+}
+
+.step-breath {
+  fill: rgba(10, 132, 255, 0.16);
+  stroke: rgba(10, 132, 255, 0.46);
+  stroke-width: 2;
+}
+
+.step-copy {
+  display: grid;
+  gap: 4px;
+  text-align: left;
+}
+
+.step-copy strong {
+  font-size: 0.95rem;
+}
+
+.step-copy span {
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+.compact-step-visual {
+  grid-template-columns: 1fr;
+}
+
+.compact-step-visual .step-card {
+  min-height: auto;
+  grid-template-columns: 118px minmax(0, 1fr);
+  grid-template-rows: auto;
+  align-items: center;
+}
+
+.compact-step-visual .step-art {
+  min-height: 94px;
+}
+
+.compact-step-visual .step-svg {
+  max-width: 118px;
 }
 
 .movement-svg {
@@ -1370,6 +1507,14 @@ textarea {
     min-height: 300px;
   }
 
+  .step-visual {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .step-card {
+    min-height: 220px;
+  }
+
   .library-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -1549,6 +1694,25 @@ textarea {
   .player-visual,
   .learn-visual {
     min-height: 230px;
+  }
+
+  .step-visual {
+    grid-template-columns: 1fr;
+  }
+
+  .step-card {
+    min-height: auto;
+    grid-template-columns: 110px minmax(0, 1fr);
+    grid-template-rows: auto;
+    align-items: center;
+  }
+
+  .step-art {
+    min-height: 90px;
+  }
+
+  .step-svg {
+    max-width: 112px;
   }
 
   .player-visual .movement-svg,
