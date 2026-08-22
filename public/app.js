@@ -1201,6 +1201,33 @@ function renderBalance() {
   `;
 }
 
+function breadcrumbItems() {
+  if (state.view === "today" && state.routine) {
+    return [
+      { label: "Builder", action: "builder" },
+      { label: "Routine", current: true }
+    ];
+  }
+  if (state.view === "today") {
+    return [{ label: "Builder", current: true }];
+  }
+  const activeNav = $(`.nav-item[data-view="${state.view}"]`);
+  const viewLabel = activeNav?.getAttribute("aria-label") || activeNav?.textContent || "";
+  return [
+    { label: state.routine ? "Routine" : "Builder", view: "today" },
+    { label: viewLabel, current: true }
+  ];
+}
+
+function renderBreadcrumbs() {
+  $("#breadcrumbs").innerHTML = breadcrumbItems().map((item, index) => {
+    const divider = index ? `<span class="breadcrumb-divider">/</span>` : "";
+    if (item.current) return `${divider}<span class="breadcrumb-current">${escapeHtml(item.label)}</span>`;
+    const attr = item.action ? `data-crumb-action="${escapeHtml(item.action)}"` : `data-crumb-view="${escapeHtml(item.view)}"`;
+    return `${divider}<button class="breadcrumb-link" ${attr} type="button">${escapeHtml(item.label)}</button>`;
+  }).join("");
+}
+
 function render() {
   initControls();
   renderRoutine();
@@ -1235,6 +1262,21 @@ function currentSettings() {
 document.addEventListener("click", (event) => {
   const nav = event.target.closest(".nav-item");
   if (nav) switchView(nav.dataset.view);
+
+  const crumbView = event.target.closest("[data-crumb-view]");
+  if (crumbView) switchView(crumbView.dataset.crumbView);
+
+  const crumbAction = event.target.closest("[data-crumb-action]");
+  if (crumbAction?.dataset.crumbAction === "builder") {
+    state.routine = null;
+    state.phase = "ready";
+    state.running = false;
+    state.elapsed = 0;
+    state.remaining = 0;
+    clearInterval(state.timerId);
+    switchView("today");
+    render();
+  }
 
   const area = event.target.closest("[data-area]");
   if (area) {
@@ -1310,6 +1352,7 @@ function closeMenu() {
 function updateShellMode() {
   const inRoutineFocus = Boolean(state.routine && state.view === "today");
   document.body.classList.toggle("routine-focus", inRoutineFocus);
+  document.body.classList.toggle("has-routine", Boolean(state.routine));
   $("#resetPlanner").textContent = inRoutineFocus ? "New routine" : "Reset";
   if (inRoutineFocus) {
     $("#viewTitle").textContent = "Routine";
@@ -1317,6 +1360,7 @@ function updateShellMode() {
     const activeNav = $(`.nav-item[data-view="${state.view}"]`);
     $("#viewTitle").textContent = activeNav?.getAttribute("aria-label") || activeNav?.textContent || "";
   }
+  renderBreadcrumbs();
 }
 
 function saveCurrentFavorite() {

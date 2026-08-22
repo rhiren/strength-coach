@@ -40,6 +40,7 @@
             <div>
               <p class="eyebrow">Personal strength routines</p>
               <h2 id="viewTitle">Today</h2>
+              <nav class="breadcrumbs" id="breadcrumbs" aria-label="Breadcrumb"></nav>
             </div>
           </div>
           <button class="ghost-button" id="resetPlanner" type="button">Reset</button>
@@ -58,12 +59,7 @@
                 <div class="segmented" id="areaControls"></div>
               </div>
 
-              <div class="control-group">
-                <span class="label">Optional focus</span>
-                <div class="chip-grid" id="focusControls"></div>
-              </div>
-
-              <div class="form-grid">
+              <div class="form-grid essentials-grid">
                 <label class="field">
                   <span>Goal</span>
                   <select id="goalSelect"></select>
@@ -73,14 +69,27 @@
                   <select id="durationSelect"></select>
                 </label>
                 <label class="field">
-                  <span>Level</span>
-                  <select id="levelSelect"></select>
-                </label>
-                <label class="field">
                   <span>Equipment</span>
                   <select id="equipmentSelect"></select>
                 </label>
               </div>
+
+              <details class="progressive-panel" id="plannerFineTune">
+                <summary>
+                  <span>Fine tune</span>
+                  <small>Focus and experience</small>
+                </summary>
+                <div class="progressive-content">
+                  <div class="control-group">
+                    <span class="label">Optional focus</span>
+                    <div class="chip-grid" id="focusControls"></div>
+                  </div>
+                  <label class="field">
+                    <span>Level</span>
+                    <select id="levelSelect"></select>
+                  </label>
+                </div>
+              </details>
 
               <button class="primary-button full" id="generateWorkout" type="button">Generate routine</button>
             </section>
