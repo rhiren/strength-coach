@@ -802,6 +802,7 @@ function renderRoutine() {
     $("#routineMeta").textContent = "Not generated";
     $("#routinePreview").innerHTML = `<div class="empty-state">Choose an area and generate a routine to see the plan.</div>`;
     $("#player").hidden = true;
+    updateShellMode();
     return;
   }
 
@@ -852,6 +853,7 @@ function renderRoutine() {
   $("#completionSummary").innerHTML = "";
   renderPlayer();
   renderLearn();
+  updateShellMode();
 }
 
 function renderPlayer() {
@@ -1206,6 +1208,7 @@ function render() {
   renderLearn();
   renderHistory();
   renderBalance();
+  updateShellMode();
 }
 
 function switchView(viewId) {
@@ -1214,6 +1217,8 @@ function switchView(viewId) {
   $$(".view").forEach((view) => view.classList.toggle("active", view.id === viewId));
   const activeNav = $(`.nav-item[data-view="${viewId}"]`);
   $("#viewTitle").textContent = activeNav?.getAttribute("aria-label") || activeNav?.textContent || "";
+  closeMenu();
+  updateShellMode();
 }
 
 function currentSettings() {
@@ -1292,6 +1297,28 @@ document.addEventListener("click", (event) => {
   }
 });
 
+function openMenu() {
+  document.body.classList.add("menu-open");
+  $("#menuToggle").setAttribute("aria-expanded", "true");
+}
+
+function closeMenu() {
+  document.body.classList.remove("menu-open");
+  $("#menuToggle").setAttribute("aria-expanded", "false");
+}
+
+function updateShellMode() {
+  const inRoutineFocus = Boolean(state.routine && state.view === "today");
+  document.body.classList.toggle("routine-focus", inRoutineFocus);
+  $("#resetPlanner").textContent = inRoutineFocus ? "New routine" : "Reset";
+  if (inRoutineFocus) {
+    $("#viewTitle").textContent = "Routine";
+  } else {
+    const activeNav = $(`.nav-item[data-view="${state.view}"]`);
+    $("#viewTitle").textContent = activeNav?.getAttribute("aria-label") || activeNav?.textContent || "";
+  }
+}
+
 function saveCurrentFavorite() {
   const favorite = {
     id: crypto.randomUUID(),
@@ -1341,6 +1368,7 @@ function loadFavoriteRoutine(id) {
 $("#generateWorkout").addEventListener("click", () => {
   state.routine = buildRoutine(currentSettings());
   renderRoutine();
+  $("#player").scrollIntoView({ behavior: "smooth", block: "start" });
 });
 
 $("#resetPlanner").addEventListener("click", () => {
@@ -1361,6 +1389,17 @@ $("#startPause").addEventListener("click", () => {
 $("#doneSet").addEventListener("click", doneSet);
 $("#skipStep").addEventListener("click", advanceSet);
 $("#finishWorkout").addEventListener("click", completeWorkout);
+
+$("#menuToggle").addEventListener("click", () => {
+  if (document.body.classList.contains("menu-open")) closeMenu();
+  else openMenu();
+});
+
+$("#menuOverlay").addEventListener("click", closeMenu);
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") closeMenu();
+});
 
 $("#profileForm").addEventListener("submit", (event) => {
   event.preventDefault();
