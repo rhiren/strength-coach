@@ -1212,7 +1212,8 @@ function switchView(viewId) {
   state.view = viewId;
   $$(".nav-item").forEach((button) => button.classList.toggle("active", button.dataset.view === viewId));
   $$(".view").forEach((view) => view.classList.toggle("active", view.id === viewId));
-  $("#viewTitle").textContent = $(`.nav-item[data-view="${viewId}"]`).textContent;
+  const activeNav = $(`.nav-item[data-view="${viewId}"]`);
+  $("#viewTitle").textContent = activeNav?.getAttribute("aria-label") || activeNav?.textContent || "";
 }
 
 function currentSettings() {

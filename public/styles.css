@@ -25,6 +25,7 @@ body {
     linear-gradient(180deg, #f7f9fc 0%, #eef3f8 100%);
   color: var(--ink);
   font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
 button,
@@ -36,6 +37,7 @@ textarea {
 
 button {
   cursor: pointer;
+  touch-action: manipulation;
 }
 
 .app {
@@ -105,7 +107,16 @@ p {
   background: transparent;
   color: #4b5563;
   text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 9px;
   transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease;
+}
+
+.nav-icon {
+  display: none;
+  font-size: 0.95rem;
+  line-height: 1;
 }
 
 .nav-item.active,
@@ -283,10 +294,12 @@ select,
 input,
 textarea {
   width: 100%;
+  min-height: 46px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.88);
   color: var(--ink);
+  font-size: 1rem;
   padding: 12px 13px;
   outline-color: var(--green);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
@@ -299,7 +312,7 @@ textarea {
 .primary-button,
 .ghost-button {
   border-radius: 8px;
-  min-height: 42px;
+  min-height: 46px;
   padding: 0 14px;
   font-weight: 800;
 }
@@ -414,7 +427,7 @@ textarea {
 .learn-link {
   border: 1px solid rgba(10, 132, 255, 0.24);
   border-radius: 8px;
-  min-height: 34px;
+  min-height: 38px;
   padding: 0 12px;
   background: rgba(10, 132, 255, 0.10);
   color: var(--green-dark);
@@ -999,6 +1012,7 @@ textarea {
   .sidebar {
     position: static;
     padding: 18px;
+    gap: 18px;
   }
 
   .nav {
@@ -1006,7 +1020,9 @@ textarea {
   }
 
   .nav-item {
+    justify-content: center;
     text-align: center;
+    min-height: 46px;
   }
 
   .training-note {
@@ -1022,6 +1038,20 @@ textarea {
     border-top: 1px solid var(--line);
     padding-left: 0;
     padding-top: 18px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+
+  .player-side h3 {
+    grid-column: 1 / -1;
+  }
+
+  .player-visual {
+    min-height: 220px;
+  }
+
+  .set-logger {
+    align-self: stretch;
   }
 
   .library-grid,
@@ -1034,14 +1064,172 @@ textarea {
   }
 }
 
+@media (min-width: 981px) and (max-width: 1180px) {
+  .app {
+    grid-template-columns: 226px 1fr;
+  }
+
+  main {
+    padding: 24px;
+  }
+
+  .planner-grid,
+  .split {
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 0.82fr);
+  }
+
+  .workout-player {
+    grid-template-columns: minmax(0, 1fr) 290px;
+  }
+
+  .learn-card {
+    grid-template-columns: 310px minmax(0, 1fr);
+  }
+}
+
+@media (min-width: 740px) and (max-width: 980px) {
+  .app {
+    min-height: 100svh;
+  }
+
+  .sidebar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: rgba(247, 249, 252, 0.92);
+  }
+
+  .brand {
+    justify-content: space-between;
+  }
+
+  .training-note {
+    display: none;
+  }
+
+  main {
+    padding: 24px;
+  }
+
+  .planner-grid,
+  .split {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+
+  .workout-player {
+    grid-template-columns: 1fr;
+  }
+
+  .player-main {
+    min-height: 430px;
+  }
+
+  .player-main h3 {
+    font-size: 2.35rem;
+  }
+
+  .time-display {
+    font-size: 6rem;
+  }
+
+  .learn-card {
+    grid-template-columns: minmax(250px, 0.82fr) minmax(0, 1fr);
+  }
+
+  .learn-visual {
+    min-height: 300px;
+  }
+
+  .library-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 620px) {
+  body {
+    background: #f5f7fa;
+  }
+
+  .app {
+    display: block;
+    min-height: 100svh;
+  }
+
+  .sidebar {
+    position: fixed;
+    inset: auto 0 0;
+    z-index: 40;
+    padding: 8px max(10px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
+    border-top: 1px solid var(--hairline);
+    border-right: 0;
+    background: rgba(248, 250, 252, 0.88);
+    box-shadow: 0 -14px 30px rgba(15, 23, 42, 0.08);
+  }
+
+  .brand,
+  .training-note {
+    display: none;
+  }
+
+  main {
+    padding: 16px 14px calc(96px + env(safe-area-inset-bottom));
+  }
+
   h2 {
-    font-size: 1.9rem;
+    font-size: 2rem;
   }
 
   .topbar {
+    min-height: auto;
+    align-items: center;
+    flex-direction: row;
+    margin-bottom: 14px;
+  }
+
+  .topbar .eyebrow {
+    display: none;
+  }
+
+  .topbar .ghost-button {
+    min-height: 40px;
+    padding: 0 12px;
+  }
+
+  .panel,
+  .workout-player,
+  .learn-card,
+  .library-card {
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+  }
+
+  .panel,
+  .workout-player {
+    padding: 16px;
+  }
+
+  .panel-head {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .segmented,
+  .chip-grid,
+  .library-toolbar {
+    gap: 7px;
+  }
+
+  .segment,
+  .focus-chip,
+  .filter-button {
+    min-height: 42px;
+    padding: 0 11px;
+  }
+
+  .planner-grid,
+  .split,
+  .workout-player {
+    gap: 14px;
   }
 
   .form-grid,
@@ -1054,15 +1242,97 @@ textarea {
   }
 
   .nav {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 3px;
+    width: 100%;
+  }
+
+  .nav-item {
+    min-height: 56px;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 4px;
+    padding: 4px 2px;
+    border-radius: 8px;
+    font-size: 0.72rem;
+    font-weight: 800;
+  }
+
+  .nav-icon {
+    display: block;
+    font-size: 1rem;
+  }
+
+  .exercise-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .exercise-row .learn-link {
+    width: 100%;
   }
 
   .player-main h3 {
-    font-size: 1.5rem;
+    font-size: 1.65rem;
+  }
+
+  .player-main {
+    min-height: auto;
+    align-content: start;
   }
 
   .time-display {
-    font-size: 4rem;
+    font-size: clamp(4.2rem, 18vw, 5.4rem);
+  }
+
+  .player-actions {
+    position: sticky;
+    bottom: calc(76px + env(safe-area-inset-bottom));
+    z-index: 25;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 10px;
+    margin: 2px -6px 0;
+    border: 1px solid var(--hairline);
+    border-radius: 8px;
+    background: rgba(248, 250, 252, 0.92);
+    backdrop-filter: blur(18px);
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
+  }
+
+  .player-actions button {
+    width: 100%;
+    min-height: 48px;
+    padding: 0 8px;
+  }
+
+  .player-side {
+    grid-template-columns: 1fr;
+  }
+
+  .player-visual,
+  .learn-visual {
+    min-height: 230px;
+  }
+
+  .player-visual .movement-svg,
+  .movement-svg {
+    width: min(100%, 320px);
+  }
+
+  .learn-card {
+    padding: 14px;
+    gap: 14px;
+  }
+
+  .learn-head h3 {
+    font-size: 1.3rem;
+  }
+
+  .learn-section ol,
+  .learn-section ul {
+    line-height: 1.5;
   }
 
   .routine-title,
@@ -1071,5 +1341,23 @@ textarea {
   .learn-head {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .learn-intro .library-toolbar,
+  .routine-actions {
+    width: 100%;
+  }
+
+  .learn-intro .filter-button,
+  .routine-actions .learn-link {
+    flex: 1;
+  }
+}
+
+@supports (-webkit-touch-callout: none) {
+  select,
+  input,
+  textarea {
+    font-size: 16px;
   }
 }
