@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Strength Coach</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <button class="nav-scrim" id="menuOverlay" type="button" aria-label="Close menu"></button>
+    <div class="app">
+      <aside class="sidebar" id="sidebar">
+        <div class="brand">
+          <div class="brand-mark">SC</div>
+          <div>
+            <h1>Strength Coach</h1>
+            <p>Follow-along training</p>
+          </div>
+        </div>
+        <nav class="nav" aria-label="Primary">
+          <button class="nav-item active" data-view="today" type="button" aria-label="Today"><span class="nav-icon">●</span><span>Today</span></button>
+          <button class="nav-item" data-view="learn" type="button" aria-label="Learn Exercises"><span class="nav-icon">◐</span><span>Learn</span></button>
+          <button class="nav-item" data-view="library" type="button" aria-label="Library"><span class="nav-icon">▦</span><span>Library</span></button>
+          <button class="nav-item" data-view="profile" type="button" aria-label="Profile"><span class="nav-icon">◎</span><span>Profile</span></button>
+          <button class="nav-item" data-view="history" type="button" aria-label="History"><span class="nav-icon">◷</span><span>History</span></button>
+        </nav>
+        <div class="training-note">
+          <strong>Training note</strong>
+          <span>Use pain-free range, warm up, and stop if something feels sharp or unusual.</span>
+        </div>
+      </aside>
+
+      <main>
+        <section class="topbar">
+          <div class="topbar-title">
+            <button class="icon-button" id="menuToggle" type="button" aria-label="Open menu" aria-controls="sidebar" aria-expanded="false">
+              <span></span>
+              <span></span>
+            </button>
+            <div>
+              <p class="eyebrow">Personal strength routines</p>
+              <h2 id="viewTitle">Today</h2>
+              <nav class="breadcrumbs" id="breadcrumbs" aria-label="Breadcrumb"></nav>
+            </div>
+          </div>
+          <button class="ghost-button" id="resetPlanner" type="button">Reset</button>
+        </section>
+
+        <section class="view active" id="today">
+          <div class="planner-grid">
+            <section class="panel planner-panel">
+              <div class="panel-head">
+                <h3>Build Workout</h3>
+                <span id="profileSummary" class="pill">Profile ready</span>
+              </div>
+
+              <div class="control-group">
+                <span class="label">Training area</span>
+                <div class="segmented" id="areaControls"></div>
+              </div>
+
+              <div class="form-grid essentials-grid">
+                <label class="field">
+                  <span>Goal</span>
+                  <select id="goalSelect"></select>
+                </label>
+                <label class="field">
+                  <span>Time</span>
+                  <select id="durationSelect"></select>
+                </label>
+                <label class="field">
+                  <span>Equipment</span>
+                  <select id="equipmentSelect"></select>
+                </label>
+              </div>
+
+              <details class="progressive-panel" id="plannerFineTune">
+                <summary>
+                  <span>Fine tune</span>
+                  <small>Focus and experience</small>
+                </summary>
+                <div class="progressive-content">
+                  <div class="control-group">
+                    <span class="label">Optional focus</span>
+                    <div class="chip-grid" id="focusControls"></div>
+                  </div>
+                  <label class="field">
+                    <span>Level</span>
+                    <select id="levelSelect"></select>
+                  </label>
+                </div>
+              </details>
+
+              <button class="primary-button full" id="generateWorkout" type="button">Generate routine</button>
+            </section>
+
+            <section class="panel summary-panel">
+              <div class="panel-head">
+                <h3>Routine Preview</h3>
+                <span id="routineMeta" class="pill muted-pill">Not generated</span>
+              </div>
+              <div id="routinePreview" class="empty-state">Choose an area and generate a routine to see the plan.</div>
+            </section>
+          </div>
+
+          <section class="workout-player" id="player" hidden>
+            <div class="player-main">
+              <p class="eyebrow" id="playerPhase">Warmup</p>
+              <h3 id="currentExercise">Ready when you are</h3>
+              <div class="set-prescription" id="currentPrescription">Generate a routine to begin.</div>
+              <div class="time-display" id="timeDisplay">00:00</div>
+              <p id="currentCue" class="cue-text"></p>
+              <div class="progress-track"><span id="workoutProgress"></span></div>
+              <div class="player-actions">
+                <button class="primary-button" id="startPause" type="button">Start set</button>
+                <button class="primary-button secondary-action" id="doneSet" type="button">Done</button>
+                <button class="ghost-button" id="skipStep" type="button">Skip</button>
+                <button class="ghost-button" id="finishWorkout" type="button">Finish</button>
+              </div>
+              <div id="completionSummary" class="completion-summary" hidden></div>
+            </div>
+            <aside class="player-side">
+              <h3>Movement Preview</h3>
+              <div id="playerVisual" class="player-visual">Generate a workout first.</div>
+              <div id="setLogger" class="set-logger" hidden>
+                <h3>Log Set</h3>
+                <div class="log-grid">
+                  <label class="field"><span>Reps</span><input id="actualReps" type="number" min="0" inputmode="numeric" /></label>
+                  <label class="field"><span>Weight</span><input id="actualWeight" type="number" min="0" inputmode="decimal" placeholder="0" /></label>
+                </div>
+                <div class="segmented compact-segments" id="difficultyControls">
+                  <button class="segment active" data-difficulty="right" type="button">Right</button>
+                  <button class="segment" data-difficulty="easy" type="button">Easy</button>
+                  <button class="segment" data-difficulty="hard" type="button">Hard</button>
+                </div>
+              </div>
+              <h3>Next Up</h3>
+              <div id="nextExercise" class="next-card">Generate a workout first.</div>
+              <h3>Swaps</h3>
+              <div id="substitution" class="sub-card">Swaps appear during the workout.</div>
+            </aside>
+          </section>
+        </section>
+
+        <section class="view" id="learn">
+          <section class="panel learn-intro">
+            <div>
+              <p class="eyebrow">Movement library</p>
+              <h3 id="learnScopeTitle">Exercises in your current plan</h3>
+            </div>
+            <div class="library-toolbar">
+              <button class="filter-button active" data-learn-scope="plan" type="button">Current plan</button>
+              <button class="filter-button" data-learn-scope="all" type="button">All exercises</button>
+            </div>
+          </section>
+          <div class="learn-grid" id="learnGrid"></div>
+        </section>
+
+        <section class="view" id="library">
+          <div class="library-toolbar">
+            <button class="filter-button active" data-library-filter="all" type="button">All</button>
+            <button class="filter-button" data-library-filter="upper" type="button">Upper</button>
+            <button class="filter-button" data-library-filter="lower" type="button">Lower</button>
+            <button class="filter-button" data-library-filter="total" type="button">Total</button>
+          </div>
+          <div class="library-grid" id="libraryGrid"></div>
+        </section>
+
+        <section class="view" id="profile">
+          <div class="split">
+            <section class="panel">
+              <div class="panel-head">
+                <h3>Your Defaults</h3>
+              </div>
+              <form id="profileForm" class="form-stack">
+                <label class="field"><span>Name</span><input name="name" placeholder="Hiren" /></label>
+                <label class="field"><span>Main goal</span><select name="goal"></select></label>
+                <label class="field"><span>Experience</span><select name="level"></select></label>
+                <label class="field"><span>Default equipment</span><select name="equipment"></select></label>
+                <label class="field"><span>Preferred time</span><select name="duration"></select></label>
+                <label class="field"><span>Weekly target</span><input name="weeklyTarget" type="number" min="1" max="7" value="3" /></label>
+                <fieldset class="safety-options">
+                  <legend>Safety constraints</legend>
+                  <label><input type="checkbox" name="constraints" value="knee" /> Knee sensitive</label>
+                  <label><input type="checkbox" name="constraints" value="shoulder" /> Shoulder sensitive</label>
+                  <label><input type="checkbox" name="constraints" value="back" /> Back sensitive</label>
+                  <label><input type="checkbox" name="constraints" value="no-jumping" /> No jumping</label>
+                  <label><input type="checkbox" name="constraints" value="no-overhead" /> No overhead pressing</label>
+                </fieldset>
+                <label class="field"><span>Avoid or modify</span><textarea name="avoid" rows="4" placeholder="Example: overhead pressing, jumping, deep knee bend"></textarea></label>
+                <button class="primary-button" type="submit">Save profile</button>
+              </form>
+            </section>
+            <section class="panel">
+              <div class="panel-head">
+                <h3>Balance Check</h3>
+              </div>
+              <div id="balanceCheck" class="balance-block"></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" id="history">
+          <div class="panel">
+            <div class="panel-head">
+              <h3>Completed Sessions</h3>
+              <button class="ghost-button" id="clearHistory" type="button">Clear history</button>
+            </div>
+            <div id="historyList"></div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="./app.js" type="module"></script>
+  </body>
+</html>
