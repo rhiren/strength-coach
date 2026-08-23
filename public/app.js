@@ -63,6 +63,10 @@ const EXERCISE_MEDIA = {
   "incline-pushup": {
     embed: "https://www.youtube.com/embed/jq6PYk3eyUI",
     source: "https://www.youtube.com/shorts/jq6PYk3eyUI"
+  },
+  "db-floor-press": {
+    embed: "https://www.youtube.com/embed/Gf65Yy0-wGI",
+    source: "https://www.youtube.com/shorts/Gf65Yy0-wGI"
   }
 };
 
