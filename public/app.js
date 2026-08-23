@@ -79,6 +79,10 @@ const EXERCISE_MEDIA = {
   "shoulder-press": {
     embed: "https://www.youtube.com/embed/NQ-JJYay1TM",
     source: "https://www.youtube.com/shorts/NQ-JJYay1TM"
+  },
+  "db-triceps-extension": {
+    embed: "https://www.youtube.com/embed/pt1csWi5MzM",
+    source: "https://www.youtube.com/shorts/pt1csWi5MzM"
   }
 };
 
@@ -181,6 +185,17 @@ const EXERCISES = [
     kind: "accessory",
     cues: ["Keep elbows quiet", "Move with control", "Own the top and bottom"],
     substitute: "Close-grip push-up hold"
+  },
+  {
+    id: "db-triceps-extension",
+    name: "Dumbbell Triceps Extension",
+    areas: ["upper", "total"],
+    focus: ["arms", "push"],
+    equipment: ["dumbbells", "gym"],
+    level: ["beginner", "intermediate", "advanced"],
+    kind: "accessory",
+    cues: ["Keep elbows steady", "Lower with control", "Extend without arching back"],
+    substitute: "Band triceps pressdown or close-grip push-up hold"
   },
   {
     id: "goblet-squat",
@@ -509,7 +524,7 @@ function diagramKind(exercise) {
   if (["romanian-deadlift", "glute-bridge"].includes(exercise.id)) return "hinge";
   if (["incline-pushup", "pushup", "db-floor-press"].includes(exercise.id)) return "push";
   if (["one-arm-row", "db-bent-over-row", "band-row"].includes(exercise.id)) return "pull";
-  if (["shoulder-press", "lateral-raise", "curl-pressdown"].includes(exercise.id)) return "arms";
+  if (["shoulder-press", "lateral-raise", "curl-pressdown", "db-triceps-extension"].includes(exercise.id)) return "arms";
   if (["dead-bug", "plank", "bear-crawl"].includes(exercise.id)) return "core";
   return "standing";
 }
@@ -525,6 +540,7 @@ function visualKind(exercise) {
     "shoulder-press": "shoulderPress",
     "lateral-raise": "lateralRaise",
     "curl-pressdown": "curlExtension",
+    "db-triceps-extension": "curlExtension",
     "goblet-squat": "gobletSquat",
     "bodyweight-squat": "bodyweightSquat",
     "reverse-lunge": "reverseLunge",
