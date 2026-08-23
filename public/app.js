@@ -71,6 +71,10 @@ const EXERCISE_MEDIA = {
   "one-arm-row": {
     embed: "https://www.youtube.com/embed/jyrudAO4Rxc",
     source: "https://www.youtube.com/shorts/jyrudAO4Rxc"
+  },
+  "db-bent-over-row": {
+    embed: "https://www.youtube.com/embed/dpYI8K6e-jE",
+    source: "https://www.youtube.com/shorts/dpYI8K6e-jE"
   }
 };
 
@@ -118,6 +122,17 @@ const EXERCISES = [
     kind: "strength",
     cues: ["Hips square", "Pull elbow toward back pocket", "Do not shrug"],
     substitute: "Band row"
+  },
+  {
+    id: "db-bent-over-row",
+    name: "Dumbbell Bent-over Row",
+    areas: ["upper", "total"],
+    focus: ["back", "pull", "posture"],
+    equipment: ["dumbbells", "gym"],
+    level: ["intermediate", "advanced"],
+    kind: "strength",
+    cues: ["Hinge with a long spine", "Pull both elbows toward ribs", "Lower with control"],
+    substitute: "One-arm dumbbell row or band row"
   },
   {
     id: "band-row",
@@ -489,7 +504,7 @@ function diagramKind(exercise) {
   if (["reverse-lunge", "step-up"].includes(exercise.id)) return "split";
   if (["romanian-deadlift", "glute-bridge"].includes(exercise.id)) return "hinge";
   if (["incline-pushup", "pushup", "db-floor-press"].includes(exercise.id)) return "push";
-  if (["one-arm-row", "band-row"].includes(exercise.id)) return "pull";
+  if (["one-arm-row", "db-bent-over-row", "band-row"].includes(exercise.id)) return "pull";
   if (["shoulder-press", "lateral-raise", "curl-pressdown"].includes(exercise.id)) return "arms";
   if (["dead-bug", "plank", "bear-crawl"].includes(exercise.id)) return "core";
   return "standing";
@@ -501,6 +516,7 @@ function visualKind(exercise) {
     pushup: "pushup",
     "db-floor-press": "floorPress",
     "one-arm-row": "dumbbellRow",
+    "db-bent-over-row": "dumbbellRow",
     "band-row": "bandRow",
     "shoulder-press": "shoulderPress",
     "lateral-raise": "lateralRaise",
