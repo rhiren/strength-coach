@@ -60,6 +60,10 @@ const EXERCISE_MEDIA = {
   //     { label: "Return", image: "./assets/exercises/pushup/top.jpg" }
   //   ]
   // }
+  "incline-pushup": {
+    embed: "https://www.youtube.com/embed/jq6PYk3eyUI",
+    source: "https://www.youtube.com/shorts/jq6PYk3eyUI"
+  }
 };
 
 const EXERCISES = [
@@ -899,12 +903,15 @@ function exerciseMediaVisual(exercise, variant = "full") {
     { label: "Return", text: anchors[2] }
   ];
 
-  if (media?.video) {
+  if (media?.video || media?.embed) {
     return `
       <div class="media-visual ${variant === "compact" ? "compact-media-visual" : ""}">
         <div class="demo-stage">
-          <video src="${escapeHtml(media.video)}" ${media.poster ? `poster="${escapeHtml(media.poster)}"` : ""} controls muted loop playsinline></video>
+          ${media.video
+            ? `<video src="${escapeHtml(media.video)}" ${media.poster ? `poster="${escapeHtml(media.poster)}"` : ""} controls muted loop playsinline></video>`
+            : `<iframe src="${escapeHtml(media.embed)}" title="${escapeHtml(exercise.name)} demo" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe>`}
         </div>
+        ${media.source && variant !== "compact" ? `<a class="media-link secondary-media-link" href="${escapeHtml(media.source)}" target="_blank" rel="noreferrer">Open source video</a>` : ""}
         <div class="media-slots">
           ${(media.frames || slots).slice(0, 3).map((slot) => `
             <article class="reference-slot ${slot.image ? "has-image" : ""}">
