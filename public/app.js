@@ -87,6 +87,10 @@ const EXERCISE_MEDIA = {
   "goblet-squat": {
     embed: "https://www.youtube.com/embed/lRYBbchqxtI",
     source: "https://www.youtube.com/shorts/lRYBbchqxtI"
+  },
+  "dead-bug": {
+    embed: "https://www.youtube.com/embed/5c-vucY3beU",
+    source: "https://www.youtube.com/shorts/5c-vucY3beU"
   }
 };
 
