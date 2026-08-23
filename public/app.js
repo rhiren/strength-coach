@@ -67,6 +67,10 @@ const EXERCISE_MEDIA = {
   "db-floor-press": {
     embed: "https://www.youtube.com/embed/Gf65Yy0-wGI",
     source: "https://www.youtube.com/shorts/Gf65Yy0-wGI"
+  },
+  "one-arm-row": {
+    embed: "https://www.youtube.com/embed/jyrudAO4Rxc",
+    source: "https://www.youtube.com/shorts/jyrudAO4Rxc"
   }
 };
 
