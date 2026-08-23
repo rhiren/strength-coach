@@ -75,6 +75,10 @@ const EXERCISE_MEDIA = {
   "db-bent-over-row": {
     embed: "https://www.youtube.com/embed/dpYI8K6e-jE",
     source: "https://www.youtube.com/shorts/dpYI8K6e-jE"
+  },
+  "shoulder-press": {
+    embed: "https://www.youtube.com/embed/NQ-JJYay1TM",
+    source: "https://www.youtube.com/shorts/NQ-JJYay1TM"
   }
 };
 
