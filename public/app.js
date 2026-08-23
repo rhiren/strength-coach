@@ -83,6 +83,10 @@ const EXERCISE_MEDIA = {
   "db-triceps-extension": {
     embed: "https://www.youtube.com/embed/pt1csWi5MzM",
     source: "https://www.youtube.com/shorts/pt1csWi5MzM"
+  },
+  "goblet-squat": {
+    embed: "https://www.youtube.com/embed/lRYBbchqxtI",
+    source: "https://www.youtube.com/shorts/lRYBbchqxtI"
   }
 };
 
